@@ -124,6 +124,24 @@ namespace X11
         public bool from_configure;
      }
 
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XButtonEvent
+    {
+        public int type;       /* of event */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;    /* true if this came from a SendEvent request */
+        public IntPtr display;   /* Display the event was read from */
+        public Window window;          /* "event" window it is reported relative to */
+        public Window root;            /* root window that the event occurred on */
+        public Window subwindow;   /* child window */
+        public int  time;      /* milliseconds */
+        public int x, y;       /* pointer x, y coordinates in event window */
+        public int x_root, y_root; /* coordinates relative to root */
+        public uint state; /* key or button mask */
+        public uint button;    /* detail */
+        public bool same_screen;
+    }
+
     /// <summary>
     /// Event raised when a window is destroyed, e.g. by an X client
     /// </summary>
@@ -200,6 +218,15 @@ namespace X11
         public int border_width;
         public Window sibling;
         public int stack_mode;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XColor
+    {
+        public ulong pixel;
+        public ushort red, green, blue;
+        public byte flags;  /* do_red, do_green, do_blue */
+        public byte pad;
     }
 
     public class Xlib
@@ -311,5 +338,36 @@ namespace X11
 
         [DllImport("libX11.so.6")]
         public static extern IntPtr XDisplayName(string display);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XGrabButton(IntPtr display, uint button, uint modifiers, Window grab_window,
+            bool owner_events, uint event_mask, int pointer_mode, int keyboard_mode, Window confine_to, ulong cursor);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XUngrabButton(IntPtr display, uint button, uint modifiers, Window grab_button);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XDefineCursor(IntPtr display, Window window, ulong cursor);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XUndefineCursor(IntPtr display, Window window);
+
+        [DllImport("libX11.so.6")]
+        public static extern ulong XCreateFontCursor(IntPtr display, ulong cursor_id);
+
+        [DllImport("libX11.so.6")]
+        public static extern ulong XDefaultColormap(IntPtr display, int screen);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XParseColor(IntPtr display, ulong Colormap, string spec, ref XColor xcolor_return);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XAllocColor(IntPtr display, ulong Colormap, ref XColor screen_in_out);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XSetWindowBackground(IntPtr display, Window window, ulong pixel);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XClearWindow(IntPtr display, Window window);
     }
 }

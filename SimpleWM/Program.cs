@@ -44,9 +44,34 @@ namespace SimpleWM
             OnError = this.ErrorHandler;
 
             Xlib.XSetErrorHandler(OnError);
-            Xlib.XSelectInput(this.display, this.root, 
+            Xlib.XSelectInput(this.display, this.root,
                 X.EventMask.SubstructureRedirectMask | X.EventMask.SubstructureNotifyMask);
             Xlib.XSync(this.display, false);
+
+            Xlib.XDefineCursor(this.display, this.root, Xlib.XCreateFontCursor(this.display, X.Cursor.XC_left_ptr));
+
+
+            // Names: see https://en.wikipedia.org/wiki/X11_color_names
+            string BackgroundColor = "black";
+            Xlib.XSetWindowBackground(this.display, this.root, GetPixelByName(BackgroundColor));
+            Xlib.XClearWindow(this.display, this.root); // force a redraw with the new background color
+            Console.WriteLine($"Set background color to {BackgroundColor}");
+        }
+
+        public ulong GetPixelByName(string name)
+        {
+            XColor color = new XColor();
+            if (0 == Xlib.XParseColor(this.display, Xlib.XDefaultColormap(this.display, 0), name, ref color))
+            {
+                Console.WriteLine($"Invalid Color {name}");
+            }
+       
+            if (0 == Xlib.XAllocColor(this.display, Xlib.XDefaultColormap(this.display, 0), ref color))
+            {
+                Console.WriteLine($"Failed to allocate color {name}");
+            }
+
+            return color.pixel;
         }
 
         public void AddFrame(ulong child)
@@ -57,12 +82,17 @@ namespace SimpleWM
             Xlib.XGetWindowAttributes(this.display, child, out var attr);
 
             var frame = Xlib.XCreateSimpleWindow(this.display, this.root, attr.x, attr.y, attr.width, attr.height,
-                3, 0xff0000, 0x0000ff);
+                3, GetPixelByName("goldenrod"), GetPixelByName("dark slate grey"));
+
+
+            Xlib.XSelectInput(this.display, frame, X.EventMask.ButtonPressMask | X.EventMask.ButtonReleaseMask);
+            // TODO - ideally the cursor would be some sort of singleton type
+            Xlib.XDefineCursor(this.display, frame, Xlib.XCreateFontCursor(this.display, X.Cursor.XC_sizing));
+
+
+            //Xlib.XUngrabButton(this.display, X.Button.LEFT, (1 << 15), child);
 
             Console.WriteLine($"(AddFrame) Created frame {frame} for window {child}");
-
-            Xlib.XSelectInput(this.display, frame,
-                X.EventMask.SubstructureNotifyMask | X.EventMask.SubstructureRedirectMask);
 
             Xlib.XReparentWindow(this.display, child, frame, 0, 0);
             Xlib.XMapWindow(this.display, frame);
@@ -70,6 +100,7 @@ namespace SimpleWM
             Xlib.XAddToSaveSet(this.display, child);
 
             this.ClientWindows[child] = frame;// Track the new window and its frame.
+
         }
 
         public void RemoveFrame(ulong child)
@@ -92,6 +123,11 @@ namespace SimpleWM
         {          
             AddFrame(ev.window);
             Xlib.XMapWindow(this.display, ev.window);
+        }
+
+        void OnButtonPressEvent(X11.XButtonEvent ev)
+        {
+            Console.WriteLine($"Pressed {ev.button}, window {ev.window}, X {ev.x_root}, Y {ev.y_root}");
         }
 
         void OnMapNotify(X11.XMapNotifyEvent ev)
@@ -157,6 +193,8 @@ namespace SimpleWM
             ulong[] ChildWindows = new ulong[0];
             uint nChildren = 0;
 
+            //Xlib.XSelectInput(this.display, this.root, X.EventMask.ButtonPressMask);
+
             Xlib.XGrabServer(this.display); // Lock the server during initialization
             var r = Xlib.XQueryTree(this.display, this.root, ref ReturnedRoot, ref ReturnedParent,
                 ref ChildWindows, ref nChildren);
@@ -203,6 +241,10 @@ namespace SimpleWM
                     case (int)X.Event.ReparentNotify:
                         var reparent_event = Marshal.PtrToStructure<X11.XReparentNotifyEvent>(ev);
                         OnReparentNotify(reparent_event);
+                        break;
+                    case (int)X.Event.ButtonPress:
+                        var button_press_event = Marshal.PtrToStructure<X11.XButtonEvent>(ev);
+                        OnButtonPressEvent(button_press_event);
                         break;
                     default:
                         Console.WriteLine($"Event type: { Enum.GetName(typeof(X.Event), xevent.type)}");

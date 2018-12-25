@@ -6,6 +6,14 @@ namespace X11
 {
     public class X
     {
+        public const ulong None = 0;
+
+        public class Cursor
+        {
+            public const ulong XC_left_ptr = 68;
+            public const ulong XC_sizing = 120;
+        }
+
         public class EventMask
         {
             /// <summary>
@@ -76,6 +84,21 @@ namespace X11
              MappingNotify = 34,
              GenericEvent = 35,
              LASTEvent = 36
+        }
+
+        public class Button
+        {
+            public const uint LEFT = 1;
+            public const uint MIDDLE = 2;
+            public const uint RIGHT = 3;
+            public const uint UP = 4;
+            public const uint DOWN = 5;
+        }
+
+        public class GrabMode
+        {
+            public const int Sync = 0;
+            public const int Async = 1;
         }
     }
 }
