@@ -6,6 +6,13 @@
   
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Andrew Newlands</Authors>
+    <Product />
+    <Description>An interface to the X11 / X Windows libraries, notably including core Xlib but also including extensions such as XTest from .Net core/C#. This allows C# programmers to interact with the X Window system commonly seen on Linux (and other Unix) systems.</Description>
+    <PackageProjectUrl>https://github.com/ajnewlands/X11.Net</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ajnewlands/X11.Net</RepositoryUrl>
+    <PackageTags>X11 Xlib "X Windows"</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
