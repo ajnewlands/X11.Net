@@ -10,6 +10,7 @@ namespace X11
 
         public class Cursor
         {
+            public const ulong XC_fleur = 52;
             public const ulong XC_left_ptr = 68;
             public const ulong XC_sizing = 120;
         }

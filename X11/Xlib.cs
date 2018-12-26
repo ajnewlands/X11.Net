@@ -134,7 +134,7 @@ namespace X11
         public Window window;          /* "event" window it is reported relative to */
         public Window root;            /* root window that the event occurred on */
         public Window subwindow;   /* child window */
-        public int  time;      /* milliseconds */
+        public ulong  time;      /* milliseconds */
         public int x, y;       /* pointer x, y coordinates in event window */
         public int x_root, y_root; /* coordinates relative to root */
         public uint state; /* key or button mask */
@@ -209,6 +209,25 @@ namespace X11
         public int x, y;
         public bool override_redirect;
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XMotionEvent
+    {
+        public int type;               /* of event */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;          /* "event" window reported relative to */
+        public Window root;            /* root window that the event occurred on */
+        public Window subwindow;       /* child window */
+        public ulong time;              /* milliseconds */
+        public int x, y;               /* pointer x, y coordinates in event window */
+        public int x_root, y_root;     /* coordinates relative to root */
+        public uint state;     /* key or button mask */
+        public byte is_hint;           /* detail */
+        public bool same_screen;
+    }
+
 
     [StructLayout(LayoutKind.Sequential)]
     public struct XWindowChanges
@@ -369,5 +388,8 @@ namespace X11
 
         [DllImport("libX11.so.6")]
         public static extern int XClearWindow(IntPtr display, Window window);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XMoveWindow(IntPtr display, Window window, int x, int y);
     }
 }

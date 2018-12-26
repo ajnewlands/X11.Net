@@ -10,6 +10,10 @@ namespace SimpleWM
         private IntPtr display;
         private ulong root;
         private readonly Dictionary<ulong, ulong> ClientWindows = new Dictionary<ulong, ulong>();
+        private readonly Dictionary<ulong, ulong> TitleToFrameMap = new Dictionary<ulong, ulong>();
+        private int MotionStartX = 0;
+        private int MotionStartY = 0;
+
 
         public XErrorHandlerDelegate OnError;
 
@@ -84,20 +88,22 @@ namespace SimpleWM
                 return; // Window has already been framed.
 
             Xlib.XGetWindowAttributes(this.display, child, out var attr);
-            var title = Xlib.XCreateSimpleWindow(this.display, this.root, attr.x, attr.y, attr.width -(2 * inner_border),
-                (title_height - 2*inner_border), inner_border, GetPixelByName("gold"), GetPixelByName("yellow"));
+            var title = Xlib.XCreateSimpleWindow(this.display, this.root, attr.x, attr.y, attr.width - (2 * inner_border),
+                (title_height - 2 * inner_border), inner_border, GetPixelByName("gold"), GetPixelByName("yellow"));
 
             // Try to keep the child window in the same place, unless this would push the window decorations off screen.
             var adjusted_x_loc = (attr.x - frame_width < 0) ? 0 : attr.x - frame_width;
-            var adjusted_y_loc = (attr.y - (title_height + frame_width) <0) ? 0 : (attr.y - (title_height + frame_width));
+            var adjusted_y_loc = (attr.y - (title_height + frame_width) < 0) ? 0 : (attr.y - (title_height + frame_width));
 
-            var frame = Xlib.XCreateSimpleWindow(this.display, this.root, adjusted_x_loc, 
+            var frame = Xlib.XCreateSimpleWindow(this.display, this.root, adjusted_x_loc,
                 adjusted_y_loc, attr.width, attr.height + title_height,
                 3, GetPixelByName("dark goldenrod"), GetPixelByName("black"));
 
 
+            Xlib.XSelectInput(this.display, title, X.EventMask.ButtonPressMask | X.EventMask.ButtonReleaseMask | X.EventMask.Button1MotionMask);
             Xlib.XSelectInput(this.display, frame, X.EventMask.ButtonPressMask | X.EventMask.ButtonReleaseMask);
             // TODO - ideally the cursor would be some sort of singleton type
+            Xlib.XDefineCursor(this.display, title, Xlib.XCreateFontCursor(this.display, X.Cursor.XC_fleur));
             Xlib.XDefineCursor(this.display, frame, Xlib.XCreateFontCursor(this.display, X.Cursor.XC_sizing));
 
 
@@ -112,7 +118,7 @@ namespace SimpleWM
             Xlib.XAddToSaveSet(this.display, child);
 
             this.ClientWindows[child] = frame;// Track the new window and its frame.
-
+            this.TitleToFrameMap[title] = frame;
         }
 
         public void RemoveFrame(ulong child)
@@ -140,6 +146,19 @@ namespace SimpleWM
         void OnButtonPressEvent(X11.XButtonEvent ev)
         {
             Console.WriteLine($"Pressed {ev.button}, window {ev.window}, X {ev.x_root}, Y {ev.y_root}");
+            this.MotionStartX = ev.x_root;
+            this.MotionStartY = ev.y_root;
+        }
+
+        void OnMotionEvent(X11.XMotionEvent ev)
+        {
+            var new_y = ev.y - this.MotionStartY;
+            var new_x = ev.x - this.MotionStartX;
+            Console.WriteLine($"Motion event: window {ev.window}, {ev.x} x {ev.y}, {ev.x_root}, {ev.y_root}");
+            Console.WriteLine($"Adjusted co-ords {new_x}x{new_y}");
+            Xlib.XGetWindowAttributes(this.display, this.TitleToFrameMap[ev.window], out var attr);
+            Console.WriteLine($"Window at {attr.x}x{attr.y} to {attr.x + new_x}x{attr.y + new_y}");
+            Xlib.XMoveWindow(this.display, this.TitleToFrameMap[ev.window], attr.y + new_y, attr.x + new_x);
         }
 
         void OnMapNotify(X11.XMapNotifyEvent ev)
@@ -257,6 +276,10 @@ namespace SimpleWM
                     case (int)X.Event.ButtonPress:
                         var button_press_event = Marshal.PtrToStructure<X11.XButtonEvent>(ev);
                         OnButtonPressEvent(button_press_event);
+                        break;
+                    case (int)X.Event.MotionNotify:
+                        var motion_event = Marshal.PtrToStructure<X11.XMotionEvent>(ev);
+                        OnMotionEvent(motion_event);
                         break;
                     default:
                         Console.WriteLine($"Event type: { Enum.GetName(typeof(X.Event), xevent.type)}");
