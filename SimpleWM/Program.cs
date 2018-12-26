@@ -76,13 +76,24 @@ namespace SimpleWM
 
         public void AddFrame(ulong child)
         {
+            const int frame_width = 3;
+            const int title_height = 20;
+            const int inner_border = 1;
+
             if (this.ClientWindows.ContainsKey(child))
                 return; // Window has already been framed.
 
             Xlib.XGetWindowAttributes(this.display, child, out var attr);
+            var title = Xlib.XCreateSimpleWindow(this.display, this.root, attr.x, attr.y, attr.width -(2 * inner_border),
+                (title_height - 2*inner_border), inner_border, GetPixelByName("gold"), GetPixelByName("yellow"));
 
-            var frame = Xlib.XCreateSimpleWindow(this.display, this.root, attr.x, attr.y, attr.width, attr.height,
-                3, GetPixelByName("goldenrod"), GetPixelByName("dark slate grey"));
+            // Try to keep the child window in the same place, unless this would push the window decorations off screen.
+            var adjusted_x_loc = (attr.x - frame_width < 0) ? 0 : attr.x - frame_width;
+            var adjusted_y_loc = (attr.y - (title_height + frame_width) <0) ? 0 : (attr.y - (title_height + frame_width));
+
+            var frame = Xlib.XCreateSimpleWindow(this.display, this.root, adjusted_x_loc, 
+                adjusted_y_loc, attr.width, attr.height + title_height,
+                3, GetPixelByName("dark goldenrod"), GetPixelByName("black"));
 
 
             Xlib.XSelectInput(this.display, frame, X.EventMask.ButtonPressMask | X.EventMask.ButtonReleaseMask);
@@ -93,8 +104,9 @@ namespace SimpleWM
             //Xlib.XUngrabButton(this.display, X.Button.LEFT, (1 << 15), child);
 
             Console.WriteLine($"(AddFrame) Created frame {frame} for window {child}");
-
-            Xlib.XReparentWindow(this.display, child, frame, 0, 0);
+            Xlib.XReparentWindow(this.display, title, frame, 0, 0);
+            Xlib.XReparentWindow(this.display, child, frame, 0, title_height);
+            Xlib.XMapWindow(this.display, title);
             Xlib.XMapWindow(this.display, frame);
             // Ensure the child window survives the untimely death of the window manager.
             Xlib.XAddToSaveSet(this.display, child);
