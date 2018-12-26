@@ -13,6 +13,8 @@ namespace SimpleWM
         private readonly Dictionary<ulong, ulong> TitleToFrameMap = new Dictionary<ulong, ulong>();
         private int MotionStartX = 0;
         private int MotionStartY = 0;
+        private int WindowOriginPointX = 0;
+        private int WindowOriginPointY = 0;
 
 
         public XErrorHandlerDelegate OnError;
@@ -30,8 +32,7 @@ namespace SimpleWM
         public WindowManager()
         {
             this.display = Xlib.XOpenDisplay(null);
-            // Debug only
-            // Xlib.XSynchronize(this.display, true);
+
             if (display == IntPtr.Zero)
             {
                 Console.WriteLine("Unable to open the default X display");
@@ -148,17 +149,21 @@ namespace SimpleWM
             Console.WriteLine($"Pressed {ev.button}, window {ev.window}, X {ev.x_root}, Y {ev.y_root}");
             this.MotionStartX = ev.x_root;
             this.MotionStartY = ev.y_root;
+            Xlib.XGetWindowAttributes(this.display, this.TitleToFrameMap[ev.window], out var attr);
+            this.WindowOriginPointX = attr.x;
+            this.WindowOriginPointY = attr.y;
         }
 
         void OnMotionEvent(X11.XMotionEvent ev)
         {
-            var new_y = ev.y - this.MotionStartY;
-            var new_x = ev.x - this.MotionStartX;
-            Console.WriteLine($"Motion event: window {ev.window}, {ev.x} x {ev.y}, {ev.x_root}, {ev.y_root}");
-            Console.WriteLine($"Adjusted co-ords {new_x}x{new_y}");
-            Xlib.XGetWindowAttributes(this.display, this.TitleToFrameMap[ev.window], out var attr);
-            Console.WriteLine($"Window at {attr.x}x{attr.y} to {attr.x + new_x}x{attr.y + new_y}");
-            Xlib.XMoveWindow(this.display, this.TitleToFrameMap[ev.window], attr.y + new_y, attr.x + new_x);
+            // Move the window, after converting co-ordinates into offsets relative to the origin point of motion
+            var new_y = ev.y_root - this.MotionStartY;
+            var new_x = ev.x_root - this.MotionStartX;
+            //Xlib.XGetWindowAttributes(this.display, this.TitleToFrameMap[ev.window], out var attr);
+            //this.MotionStartX = ev.x_root;
+            //this.MotionStartY = ev.y_root;
+            //Xlib.XMoveWindow(this.display, this.TitleToFrameMap[ev.window], attr.x + new_x, attr.y + new_y);
+            Xlib.XMoveWindow(this.display, this.TitleToFrameMap[ev.window], this.WindowOriginPointX + new_x, this.WindowOriginPointY + new_y);
         }
 
         void OnMapNotify(X11.XMapNotifyEvent ev)
