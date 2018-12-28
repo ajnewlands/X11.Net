@@ -66,13 +66,14 @@ namespace SimpleWM
 
         public ulong GetPixelByName(string name)
         {
+            var screen = Xlib.XDefaultScreen(this.display);
             XColor color = new XColor();
-            if (0 == Xlib.XParseColor(this.display, Xlib.XDefaultColormap(this.display, 0), name, ref color))
+            if (0 == Xlib.XParseColor(this.display, Xlib.XDefaultColormap(this.display, screen), name, ref color))
             {
                 Console.WriteLine($"Invalid Color {name}");
             }
        
-            if (0 == Xlib.XAllocColor(this.display, Xlib.XDefaultColormap(this.display, 0), ref color))
+            if (0 == Xlib.XAllocColor(this.display, Xlib.XDefaultColormap(this.display, screen), ref color))
             {
                 Console.WriteLine($"Failed to allocate color {name}");
             }

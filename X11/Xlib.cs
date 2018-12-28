@@ -3,9 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace X11
 {
-    using XID = UInt64;
-    //using Window = UInt64;
-    using Colormap = UInt64;
+    public enum XID : ulong { }
 
     public enum PixmapFormat : int {XYBitmap = 0, XYPixmap = 1, ZPixmap = 2 };
 
@@ -13,21 +11,6 @@ namespace X11
     {
         Failure = 0,
     }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XErrorEvent
-    {
-        public int type;
-        public IntPtr display;
-        public XID resourceid;
-        public ulong serial;
-        public char error_code;
-        public char request_code;
-        public char minor_code;
-    }
-
-    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
-    public delegate int XErrorHandlerDelegate(IntPtr display, ref XErrorEvent ev);
 
     [StructLayout(LayoutKind.Sequential)]
     public struct XImage
@@ -255,13 +238,7 @@ namespace X11
 
     public partial class Xlib
     {
-        /// <summary>
-        /// Retrieve the Window ID corresponding to the displays root window.
-        /// </summary>
-        /// <param name="display">Pointer to an open X display</param>
-        /// <returns></returns>
-        [DllImport("libX11.so.6")]
-        public static extern Window XDefaultRootWindow(IntPtr display);
+
 
         [DllImport("libX11.so.6")]
         public static extern void XGetWindowAttributes(IntPtr display, Window window, out XWindowAttributes attributes );
@@ -283,8 +260,6 @@ namespace X11
         public static extern ref XImage XGetImage(IntPtr display, Window drawable, int x, int y,
             uint width, uint height, ulong plane_mask, PixmapFormat format);
 
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XSetErrorHandler(XErrorHandlerDelegate del);
 
         [DllImport("libX11.so.6")]
         public static extern int XSelectInput(IntPtr display, Window window, EventMask event_mask);
@@ -318,33 +293,6 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern int XConfigureWindow(IntPtr display, Window window, ulong value_mask, ref XWindowChanges changes);
 
-        [DllImport("libX11.so.6")]
-        public static extern int XGetErrorText(IntPtr display, int code, IntPtr description, int length);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XSynchronize(IntPtr display, bool onoff);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XGrabServer(IntPtr display);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XUngrabServer(IntPtr display);
-
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XDisplayName(string display);
-
-
-
-
-
-        [DllImport("libX11.so.6")]
-        public static extern ulong XDefaultColormap(IntPtr display, int screen);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XParseColor(IntPtr display, ulong Colormap, string spec, ref XColor xcolor_return);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XAllocColor(IntPtr display, ulong Colormap, ref XColor screen_in_out);
 
         [DllImport("libX11.so.6")]
         public static extern int XSetWindowBackground(IntPtr display, Window window, ulong pixel);
