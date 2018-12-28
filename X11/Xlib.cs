@@ -309,12 +309,6 @@ namespace X11
         public static extern int XSelectInput(IntPtr display, Window window, EventMask event_mask);
 
         [DllImport("libX11.so.6")]
-        public static extern int XSync(IntPtr display, bool discard);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XNextEvent(IntPtr display, IntPtr ev);
-
-        [DllImport("libX11.so.6")]
         public static extern int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
             ref Window WinParentReturn, ref Window[] ChildrenReturn, ref uint nChildren);
 
