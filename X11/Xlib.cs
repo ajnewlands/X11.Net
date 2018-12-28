@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace X11
 {
     using XID = UInt64;
-    using Window = UInt64;
+    //using Window = UInt64;
     using Colormap = UInt64;
 
     public enum Pixmap : int {XYBitmap = 0, XYPixmap = 1, ZPixmap = 2 };
@@ -248,7 +248,7 @@ namespace X11
         public byte pad;
     }
 
-    public class Xlib
+    public partial class Xlib
     {
         /// <summary>
         /// Used e.g. with XGetImage
@@ -283,7 +283,7 @@ namespace X11
         public static extern Window XDefaultRootWindow(IntPtr display);
 
         [DllImport("libX11.so.6")]
-        public static extern void XGetWindowAttributes(IntPtr display, XID window, out XWindowAttributes attributes );
+        public static extern void XGetWindowAttributes(IntPtr display, Window window, out XWindowAttributes attributes );
 
         /// <summary>
         /// Returns a pointer which can be marshalled to an XImage object for field access in managed code.
@@ -306,7 +306,7 @@ namespace X11
         public static extern IntPtr XSetErrorHandler(XErrorHandlerDelegate del);
 
         [DllImport("libX11.so.6")]
-        public static extern int XSelectInput(IntPtr display, ulong window, long event_mask);
+        public static extern int XSelectInput(IntPtr display, Window window, EventMask event_mask);
 
         [DllImport("libX11.so.6")]
         public static extern int XSync(IntPtr display, bool discard);
@@ -315,8 +315,8 @@ namespace X11
         public static extern int XNextEvent(IntPtr display, IntPtr ev);
 
         [DllImport("libX11.so.6")]
-        public static extern int XQueryTree(IntPtr display, Window window, ref ulong WinRootReturn,
-            ref ulong WinParentReturn, ref ulong[] ChildrenReturn, ref uint nChildren);
+        public static extern int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
+            ref Window WinParentReturn, ref Window[] ChildrenReturn, ref uint nChildren);
 
         [DllImport("libX11.so.6")]
         public static extern Window XCreateSimpleWindow(IntPtr display, Window parent, int x, int y,
@@ -358,12 +358,7 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern IntPtr XDisplayName(string display);
 
-        [DllImport("libX11.so.6")]
-        public static extern int XGrabButton(IntPtr display, uint button, uint modifiers, Window grab_window,
-            bool owner_events, uint event_mask, int pointer_mode, int keyboard_mode, Window confine_to, ulong cursor);
 
-        [DllImport("libX11.so.6")]
-        public static extern int XUngrabButton(IntPtr display, uint button, uint modifiers, Window grab_button);
 
         [DllImport("libX11.so.6")]
         public static extern int XDefineCursor(IntPtr display, Window window, ulong cursor);
@@ -372,7 +367,7 @@ namespace X11
         public static extern int XUndefineCursor(IntPtr display, Window window);
 
         [DllImport("libX11.so.6")]
-        public static extern ulong XCreateFontCursor(IntPtr display, ulong cursor_id);
+        public static extern ulong XCreateFontCursor(IntPtr display, Cursors cursor_id);
 
         [DllImport("libX11.so.6")]
         public static extern ulong XDefaultColormap(IntPtr display, int screen);

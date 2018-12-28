@@ -8,9 +8,9 @@ namespace SimpleWM
     public class WindowManager
     {
         private IntPtr display;
-        private ulong root;
-        private readonly Dictionary<ulong, ulong> ClientWindows = new Dictionary<ulong, ulong>();
-        private readonly Dictionary<ulong, ulong> TitleToFrameMap = new Dictionary<ulong, ulong>();
+        private Window root;
+        private readonly Dictionary<Window, Window> ClientWindows = new Dictionary<Window, Window>();
+        private readonly Dictionary<Window, Window> TitleToFrameMap = new Dictionary<Window, Window>();
         private int MotionStartX = 0;
         private int MotionStartY = 0;
         private int WindowOriginPointX = 0;
@@ -50,10 +50,11 @@ namespace SimpleWM
 
             Xlib.XSetErrorHandler(OnError);
             Xlib.XSelectInput(this.display, this.root,
-                X.EventMask.SubstructureRedirectMask | X.EventMask.SubstructureNotifyMask);
+                EventMask.SubstructureRedirectMask | EventMask.SubstructureNotifyMask);
             Xlib.XSync(this.display, false);
 
-            Xlib.XDefineCursor(this.display, this.root, Xlib.XCreateFontCursor(this.display, X.Cursor.XC_left_ptr));
+            Xlib.XDefineCursor(this.display, this.root, 
+                Xlib.XCreateFontCursor(this.display, Cursors.XC_left_ptr));
 
 
             // Names: see https://en.wikipedia.org/wiki/X11_color_names
@@ -79,7 +80,7 @@ namespace SimpleWM
             return color.pixel;
         }
 
-        public void AddFrame(ulong child)
+        public void AddFrame(Window child)
         {
             const int frame_width = 3;
             const int title_height = 20;
@@ -101,14 +102,11 @@ namespace SimpleWM
                 3, GetPixelByName("dark goldenrod"), GetPixelByName("black"));
 
 
-            Xlib.XSelectInput(this.display, title, X.EventMask.ButtonPressMask | X.EventMask.ButtonReleaseMask | X.EventMask.Button1MotionMask);
-            Xlib.XSelectInput(this.display, frame, X.EventMask.ButtonPressMask | X.EventMask.ButtonReleaseMask);
+            Xlib.XSelectInput(this.display, title, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask | EventMask.Button1MotionMask);
+            Xlib.XSelectInput(this.display, frame, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask);
             // TODO - ideally the cursor would be some sort of singleton type
-            Xlib.XDefineCursor(this.display, title, Xlib.XCreateFontCursor(this.display, X.Cursor.XC_fleur));
-            Xlib.XDefineCursor(this.display, frame, Xlib.XCreateFontCursor(this.display, X.Cursor.XC_sizing));
-
-
-            //Xlib.XUngrabButton(this.display, X.Button.LEFT, (1 << 15), child);
+            Xlib.XDefineCursor(this.display, title, Xlib.XCreateFontCursor(this.display, Cursors.XC_fleur ));
+            Xlib.XDefineCursor(this.display, frame, Xlib.XCreateFontCursor(this.display, Cursors.XC_sizing ));
 
             Console.WriteLine($"(AddFrame) Created frame {frame} for window {child}");
             Xlib.XReparentWindow(this.display, title, frame, 0, 0);
@@ -122,7 +120,7 @@ namespace SimpleWM
             this.TitleToFrameMap[title] = frame;
         }
 
-        public void RemoveFrame(ulong child)
+        public void RemoveFrame(Window child)
         {
 
             if (!this.ClientWindows.ContainsKey(child))
@@ -225,8 +223,8 @@ namespace SimpleWM
         {
             IntPtr ev = Marshal.AllocHGlobal( 24* sizeof(long) );
 
-            ulong ReturnedParent = 0, ReturnedRoot = 0;
-            ulong[] ChildWindows = new ulong[0];
+            Window ReturnedParent = 0, ReturnedRoot = 0;
+            Window[] ChildWindows = new Window[0];
             uint nChildren = 0;
 
             //Xlib.XSelectInput(this.display, this.root, X.EventMask.ButtonPressMask);
@@ -250,44 +248,44 @@ namespace SimpleWM
 
                 switch (xevent.type)
                 {
-                    case (int)X.Event.DestroyNotify:
+                    case (int)Event.DestroyNotify:
                         var destroy_event = Marshal.PtrToStructure<X11.XDestroyWindowEvent>(ev);
                         OnDestroyNotify(destroy_event);
                         break;
-                    case (int)X.Event.CreateNotify:
+                    case (int)Event.CreateNotify:
                         var create_event = Marshal.PtrToStructure<X11.XCreateNotifyEvent>(ev);
                         OnCreateNotify(create_event);
                         break;
-                    case (int)X.Event.MapNotify:
+                    case (int)Event.MapNotify:
                         var map_notify = Marshal.PtrToStructure<X11.XMapNotifyEvent>(ev);
                         OnMapNotify(map_notify);
                         break;
-                    case (int)X.Event.MapRequest:
+                    case (int)Event.MapRequest:
                         var map_event = Marshal.PtrToStructure<X11.XMapRequestEvent>(ev);
                         OnMapRequest(map_event);
                         break;
-                    case (int)X.Event.ConfigureRequest:
+                    case (int)Event.ConfigureRequest:
                         var cfg_event = Marshal.PtrToStructure<X11.XConfigureRequestEvent>(ev);
                         OnConfigureRequest(cfg_event);
                         break;
-                    case (int)X.Event.UnmapNotify:
+                    case (int)Event.UnmapNotify:
                         var unmap_event = Marshal.PtrToStructure<X11.XUnmapEvent>(ev);
                         OnUnmapNotify(unmap_event);
                         break;
-                    case (int)X.Event.ReparentNotify:
+                    case (int)Event.ReparentNotify:
                         var reparent_event = Marshal.PtrToStructure<X11.XReparentNotifyEvent>(ev);
                         OnReparentNotify(reparent_event);
                         break;
-                    case (int)X.Event.ButtonPress:
+                    case (int)Event.ButtonPress:
                         var button_press_event = Marshal.PtrToStructure<X11.XButtonEvent>(ev);
                         OnButtonPressEvent(button_press_event);
                         break;
-                    case (int)X.Event.MotionNotify:
+                    case (int)Event.MotionNotify:
                         var motion_event = Marshal.PtrToStructure<X11.XMotionEvent>(ev);
                         OnMotionEvent(motion_event);
                         break;
                     default:
-                        Console.WriteLine($"Event type: { Enum.GetName(typeof(X.Event), xevent.type)}");
+                        Console.WriteLine($"Event type: { Enum.GetName(typeof(Event), xevent.type)}");
                         break;
                 }
             }
