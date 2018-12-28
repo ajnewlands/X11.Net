@@ -7,7 +7,12 @@ namespace X11
     //using Window = UInt64;
     using Colormap = UInt64;
 
-    public enum Pixmap : int {XYBitmap = 0, XYPixmap = 1, ZPixmap = 2 };
+    public enum PixmapFormat : int {XYBitmap = 0, XYPixmap = 1, ZPixmap = 2 };
+
+    public enum Status: int
+    {
+        Failure = 0,
+    }
 
     [StructLayout(LayoutKind.Sequential)]
     public struct XErrorEvent
@@ -251,30 +256,6 @@ namespace X11
     public partial class Xlib
     {
         /// <summary>
-        /// Used e.g. with XGetImage
-        /// </summary>
-        public const ulong AllPlanes = 0xffffffffffffffff;
-
-
-
-        /// <summary>
-        /// Initiate a connection to the name X session.
-        /// (or respect the DISPLAY environment variable if the display parameter is null).
-        /// </summary>
-        /// <param name="display">X session connection string</param>
-        /// <returns></returns>
-        [DllImport("libX11.so.6")]
-        public static extern IntPtr XOpenDisplay(string display);
-
-        /// <summary>
-        /// Free an unmanaged display pointer (created with XOpenDisplay)
-        /// </summary>
-        /// <param name="display">Display pointer to free</param>
-        /// <returns></returns>
-        [DllImport("libX11.so.6")]
-        public static extern int XCloseDisplay(IntPtr display);
-
-        /// <summary>
         /// Retrieve the Window ID corresponding to the displays root window.
         /// </summary>
         /// <param name="display">Pointer to an open X display</param>
@@ -300,7 +281,7 @@ namespace X11
         /// <returns></returns>
         [DllImport("libX11.so.6")]
         public static extern ref XImage XGetImage(IntPtr display, Window drawable, int x, int y,
-            uint width, uint height, ulong plane_mask, Pixmap format);
+            uint width, uint height, ulong plane_mask, PixmapFormat format);
 
         [DllImport("libX11.so.6")]
         public static extern IntPtr XSetErrorHandler(XErrorHandlerDelegate del);
@@ -354,14 +335,7 @@ namespace X11
 
 
 
-        [DllImport("libX11.so.6")]
-        public static extern int XDefineCursor(IntPtr display, Window window, ulong cursor);
 
-        [DllImport("libX11.so.6")]
-        public static extern int XUndefineCursor(IntPtr display, Window window);
-
-        [DllImport("libX11.so.6")]
-        public static extern ulong XCreateFontCursor(IntPtr display, Cursors cursor_id);
 
         [DllImport("libX11.so.6")]
         public static extern ulong XDefaultColormap(IntPtr display, int screen);

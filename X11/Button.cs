@@ -53,8 +53,8 @@ namespace X11
         /// <param name="cursor">Specify the cursor to display or None (0)</param>
         /// <returns></returns>
         [DllImport("libX11.so.6")]
-        public static extern int XGrabButton(IntPtr display, Button button, uint modifiers, Window grab_window,
-        bool owner_events, uint event_mask, GrabMode pointer_mode, GrabMode keyboard_mode, Window confine_to, Cursors cursor);
+        public static extern Status XGrabButton(IntPtr display, Button button, uint modifiers, Window grab_window,
+        bool owner_events, uint event_mask, GrabMode pointer_mode, GrabMode keyboard_mode, Window confine_to, FontCursor cursor);
 
         /// <summary>
         ///  The XUngrabButton function releases the passive button/key combination on the specified window if it was
@@ -68,7 +68,7 @@ namespace X11
         /// <param name="grab_button">Specify the grab window.</param>
         /// <returns></returns>
         [DllImport("libX11.so.6")]
-        public static extern int XUngrabButton(IntPtr display, Button button, uint modifiers, Window grab_window);
+        public static extern Status XUngrabButton(IntPtr display, Button button, uint modifiers, Window grab_window);
     }
 
 

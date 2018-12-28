@@ -91,9 +91,9 @@ namespace X11
         /// </summary>
         /// <param name="display">Connected display</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XNextEvent(IntPtr display, IntPtr event_return);
+        public static extern Status XNextEvent(IntPtr display, IntPtr event_return);
 
         /// <summary>
         /// The XPeekEvent function returns the first event from the event queue, but it does not remove the event from
@@ -102,9 +102,9 @@ namespace X11
         /// </summary>
         /// <param name="display">Connected display</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XPeekEvent(IntPtr display, IntPtr event_return);
+        public static extern Status XPeekEvent(IntPtr display, IntPtr event_return);
 
         /// <summary>
         /// The XWindowEvent function searches the event queue for an event that matches both the specified window and
@@ -116,9 +116,9 @@ namespace X11
         /// <param name="window">Window specifier</param>
         /// <param name="mask">Event mask</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns></returns>
+        /// <returns>zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XWindowEvent(IntPtr display, Window window, EventMask mask, IntPtr event_return);
+        public static extern Status XWindowEvent(IntPtr display, Window window, EventMask mask, IntPtr event_return);
 
         /// <summary>
         /// The XCheckWindowEvent function searches the event queue and then the events available on the server connection
@@ -131,9 +131,9 @@ namespace X11
         /// <param name="window">Window specifier</param>
         /// <param name="mask">Event mask</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XCheckWindowEvent(IntPtr display, Window window, EventMask mask, IntPtr event_return);
+        public static extern Status XCheckWindowEvent(IntPtr display, Window window, EventMask mask, IntPtr event_return);
 
         /// <summary>
         /// The XMaskEvent function searches the event queue for the events associated with the specified mask.  When it
@@ -144,9 +144,9 @@ namespace X11
         /// <param name="display">Connected display</param>
         /// <param name="mask">Event mask</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XMaskEvent(IntPtr display, EventMask mask, IntPtr event_return);
+        public static extern Status XMaskEvent(IntPtr display, EventMask mask, IntPtr event_return);
 
         /// <summary>
         /// The XCheckMaskEvent function searches the event queue and then any events available on the server connection
@@ -172,9 +172,9 @@ namespace X11
         /// <param name="display">Connected display</param>
         /// <param name="type">Event type</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XCheckTypedEvent(IntPtr display, Event type, IntPtr event_return);
+        public static extern Status XCheckTypedEvent(IntPtr display, Event type, IntPtr event_return);
 
         /// <summary>
         /// The XCheckTypedWindowEvent function searches the event queue and then any events available on the server con‐
@@ -187,9 +187,9 @@ namespace X11
         /// <param name="window">Window specifier</param>
         /// <param name="type">Event type</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XCheckTypedWindowEvent(IntPtr display, Window window, Event type, IntPtr event_return);
+        public static extern Status XCheckTypedWindowEvent(IntPtr display, Window window, Event type, IntPtr event_return);
 
         /// <summary>
         /// The XSync function flushes the output buffer and then waits until all requests have been received and pro‐
@@ -202,9 +202,9 @@ namespace X11
         /// </summary>
         /// <param name="display">Connected display</param>
         /// <param name="discard">Discard queued events</param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XSync(IntPtr display, bool discard);
+        public static extern Status XSync(IntPtr display, bool discard);
 
         /// <summary>
         /// The XFlush function flushes the output buffer.  Most client applications need not use this function because
@@ -212,9 +212,9 @@ namespace X11
         /// Events generated by the server may be enqueued into the library's event queue.
         /// </summary>
         /// <param name="display">Connected display </param>
-        /// <returns></returns>
+        /// <returns>Zero on error</returns>
         [DllImport("libX11.so.6")]
-        public static extern int XFlush(IntPtr display);
+        public static extern Status XFlush(IntPtr display);
 
         /// <summary>
         /// If mode is QueuedAlready, XEventsQueued returns the number of events already in the event queue (and never

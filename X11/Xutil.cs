@@ -14,7 +14,7 @@ namespace X11
         /// <returns>non-zero on success, zero on failure.</returns>
         //[DllImport("libX11.so.6")]
         //public static extern int XDestroyImage(ref XImage XImage);
-        public static int XDestroyImage(ref XImage xImage)
+        public static Status XDestroyImage(ref XImage xImage)
         {
             Marshal.FreeHGlobal(xImage.data);
             Marshal.FreeHGlobal(xImage.obdata);

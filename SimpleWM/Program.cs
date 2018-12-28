@@ -54,7 +54,7 @@ namespace SimpleWM
             Xlib.XSync(this.display, false);
 
             Xlib.XDefineCursor(this.display, this.root, 
-                Xlib.XCreateFontCursor(this.display, Cursors.XC_left_ptr));
+                Xlib.XCreateFontCursor(this.display, FontCursor.XC_left_ptr));
 
 
             // Names: see https://en.wikipedia.org/wiki/X11_color_names
@@ -105,8 +105,8 @@ namespace SimpleWM
             Xlib.XSelectInput(this.display, title, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask | EventMask.Button1MotionMask);
             Xlib.XSelectInput(this.display, frame, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask);
             // TODO - ideally the cursor would be some sort of singleton type
-            Xlib.XDefineCursor(this.display, title, Xlib.XCreateFontCursor(this.display, Cursors.XC_fleur ));
-            Xlib.XDefineCursor(this.display, frame, Xlib.XCreateFontCursor(this.display, Cursors.XC_sizing ));
+            Xlib.XDefineCursor(this.display, title, Xlib.XCreateFontCursor(this.display, FontCursor.XC_fleur ));
+            Xlib.XDefineCursor(this.display, frame, Xlib.XCreateFontCursor(this.display, FontCursor.XC_sizing ));
 
             Console.WriteLine($"(AddFrame) Created frame {frame} for window {child}");
             Xlib.XReparentWindow(this.display, title, frame, 0, 0);
