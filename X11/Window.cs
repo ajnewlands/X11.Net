@@ -68,6 +68,26 @@ namespace X11
     }
 
     [StructLayout(LayoutKind.Sequential)]
+    public struct XSetWindowAttributes
+    {
+        public Pixmap background_pixmap;   /* background or None or ParentRelative */
+        public ulong background_pixel;     /* background pixel */
+        public Pixmap border_pixmap;       /* border of the window */
+        public ulong border_pixel; /* border pixel value */
+        public int bit_gravity;            /* one of bit gravity values */
+        public int win_gravity;            /* one of the window gravity values */
+        public int backing_store;          /* NotUseful, WhenMapped, Always */
+        public ulong backing_planes;/* planes to be preseved if possible */
+        public ulong backing_pixel;/* value to use in restoring planes */
+        public bool save_under;            /* should bits under be saved? (popups) */
+        public EventMask event_mask;            /* set of events that should be saved */
+        public EventMask do_not_propagate_mask; /* set of events that should not propagate */
+        public bool override_redirect;     /* boolean value for override-redirect */
+        public Colormap colormap;          /* color map to be associated with window */
+        public Cursor cursor;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
     public struct XWindowChanges
     {
         public int x, y;
@@ -133,6 +153,11 @@ namespace X11
         public static extern Window XCreateSimpleWindow(IntPtr display, Window parent, int x, int y,
             uint width, uint height, uint border_width, ulong border_colour, ulong background_colour);
 
+        [DllImport("libX11.so.6")]
+        public static extern Window XCreateWindow(IntPtr display, Window parent, int x, int y, uint width,
+            uint height, uint border_width, int depth, uint @class, IntPtr visual, ulong valuemask,
+              ref XSetWindowAttributes attributes);
+        
         [DllImport("libX11.so.6")]
         public static extern int XMapWindow(IntPtr display, Window window);
 
