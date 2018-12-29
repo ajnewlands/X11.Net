@@ -10,7 +10,7 @@ namespace X11
         RetainTemporary = 2,
     }
 
-    public enum Colormap : ulong { }
+
 
     public enum Planes: ulong
     {
@@ -111,15 +111,6 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern int XConnectionNumber(IntPtr display);
 
-        /// <summary>
-        /// Returns the default colormap ID for allocation on the specified screen. 
-        /// Most routine allocations of color should be made out of this colormap.
-        /// </summary>
-        /// <param name="display">Connected display</param>
-        /// <param name="screen_number">Target screen</param>
-        /// <returns>Default color map for screen</returns>
-        [DllImport("libX11.so.6")]
-        public static extern Colormap XDefaultColormap(IntPtr display, int screen_number);
 
         /// <summary>
         /// Returns the depth (number of planes) of the default root window on the specified screen.
@@ -155,36 +146,7 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern IntPtr XDefaultGC(IntPtr display, int screen_number);
 
-        /// <summary>
-        /// The XParseColor function looks up the string name of a color with respect to the screen associated with the
-        /// specified colormap.It returns the exact color value.If the color name is not in the Host Portable Charac‐
-        /// ter Encoding, the result is implementation-dependent. Use of uppercase or lowercase does not matter. XParse‐
-        /// Color returns nonzero if the name is resolved; otherwise, it returns zero.
-        /// </summary>
-        /// <param name="display">Connected display</param>
-        /// <param name="colormap">Desired colormap</param>
-        /// <param name="spec">Color name</param>
-        /// <param name="xcolor_return">returned color</param>
-        /// <returns>Zero on failure</returns>
-        [DllImport("libX11.so.6")]
-        public static extern Status XParseColor(IntPtr display, Colormap colormap, string spec, ref XColor xcolor_return);
 
-        /// <summary>
-        /// The XAllocColor function allocates a read-only colormap entry corresponding to the closest RGB value supported
-        /// by the hardware. XAllocColor returns the pixel value of the color closest to the specified RGB elements sup‐
-        /// ported by the hardware and returns the RGB value actually used.The corresponding colormap cell is read-only.
-        /// In addition, XAllocColor returns nonzero if it succeeded or zero if it failed. Multiple clients that request
-        /// the same effective RGB value can be assigned the same read-only entry, thus allowing entries to be shared.
-        ///
-        /// When the last client deallocates a shared cell, it is deallocated.XAllocColor does not use or affect the
-        /// flags in the XColor structure.
-        /// </summary>
-        /// <param name="display">Connected display</param>
-        /// <param name="colormap">Colormap to use</param>
-        /// <param name="screen_in_out">Allocated colour</param>
-        /// <returns>Zero on failure</returns>
-        [DllImport("libX11.so.6")]
-        public static extern Status XAllocColor(IntPtr display, Colormap colormap, ref XColor screen_in_out);
 
         /// <summary>
         /// Retrieve the Window ID corresponding to the displays root window.

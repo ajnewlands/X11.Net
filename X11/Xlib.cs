@@ -227,21 +227,10 @@ namespace X11
         public int stack_mode;
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XColor
-    {
-        public ulong pixel;
-        public ushort red, green, blue;
-        public byte flags;  /* do_red, do_green, do_blue */
-        public byte pad;
-    }
 
     public partial class Xlib
     {
 
-
-        [DllImport("libX11.so.6")]
-        public static extern void XGetWindowAttributes(IntPtr display, Window window, out XWindowAttributes attributes );
 
         /// <summary>
         /// Returns a pointer which can be marshalled to an XImage object for field access in managed code.
