@@ -165,7 +165,7 @@ namespace SimpleWM
             Xlib.XMoveWindow(this.display, this.TitleToFrameMap[ev.window], this.WindowOriginPointX + new_x, this.WindowOriginPointY + new_y);
         }
 
-        void OnMapNotify(X11.XMapNotifyEvent ev)
+        void OnMapNotify(X11.XMapEvent ev)
         {
             Console.WriteLine($"(MapNotifyEvent) Window {ev.window} has been mapped.");
         }
@@ -210,12 +210,12 @@ namespace SimpleWM
             Console.WriteLine($"(OnDestroyNotify) Destroyed {ev.window}");
         }
 
-        void OnReparentNotify(X11.XReparentNotifyEvent ev)
+        void OnReparentNotify(X11.XReparentEvent ev)
         {
             return; // Never seems to be interesting and is often duplicated.
         }
 
-        void OnCreateNotify(X11.XCreateNotifyEvent ev)
+        void OnCreateNotify(X11.XCreateWindowEvent ev)
         {
             Console.WriteLine($"(OnCreateNotify) Created event {ev.window}, parent {ev.parent}");
         }
@@ -245,7 +245,7 @@ namespace SimpleWM
             {
 
                 var rv = Xlib.XNextEvent(this.display, ev);
-                var xevent = Marshal.PtrToStructure<X11.XEvent>(ev);
+                var xevent = Marshal.PtrToStructure<X11.XAnyEvent>(ev);
 
                 switch (xevent.type)
                 {
@@ -254,11 +254,11 @@ namespace SimpleWM
                         OnDestroyNotify(destroy_event);
                         break;
                     case (int)Event.CreateNotify:
-                        var create_event = Marshal.PtrToStructure<X11.XCreateNotifyEvent>(ev);
+                        var create_event = Marshal.PtrToStructure<X11.XCreateWindowEvent>(ev);
                         OnCreateNotify(create_event);
                         break;
                     case (int)Event.MapNotify:
-                        var map_notify = Marshal.PtrToStructure<X11.XMapNotifyEvent>(ev);
+                        var map_notify = Marshal.PtrToStructure<X11.XMapEvent>(ev);
                         OnMapNotify(map_notify);
                         break;
                     case (int)Event.MapRequest:
@@ -274,7 +274,7 @@ namespace SimpleWM
                         OnUnmapNotify(unmap_event);
                         break;
                     case (int)Event.ReparentNotify:
-                        var reparent_event = Marshal.PtrToStructure<X11.XReparentNotifyEvent>(ev);
+                        var reparent_event = Marshal.PtrToStructure<X11.XReparentEvent>(ev);
                         OnReparentNotify(reparent_event);
                         break;
                     case (int)Event.ButtonPress:

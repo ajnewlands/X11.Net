@@ -3,6 +3,15 @@ using System.Runtime.InteropServices;
 
 namespace X11
 {
+    public enum Atom : ulong { }
+
+    public enum MappingType: int
+    {
+        MappingModifier = 0,
+        MappingKeyboard = 1,
+        MappingPointer = 2,
+    }
+
     public enum Event : int
     {
         KeyPress = 2,
@@ -81,6 +90,432 @@ namespace X11
         QueuedAfterReading = 1,
         QueuedAfterFlush = 2,
     }
+
+    public enum NotifyMode: int
+    {
+        NotifyNormal = 0,
+        NotifyGrab = 1,
+        NotifyUngrab = 2,
+        NotifyWhileGrabbed = 3,
+    }
+
+    public enum NotifyDetail: int
+    {
+        NotifyAncestor = 0,
+        NotifyVirtual = 1,
+        NotifyInferior = 2,
+        NotifyNonlinear = 3,
+        NotifyNonlinearVirtual = 4,
+        NotifyPointer = 5,
+        NotifyPointerRoot = 6,
+        NotifyDetailNone = 7,
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XAnyEvent
+    {
+        public int type;
+        public ulong serial;
+        public bool send_event;
+        public IntPtr display;
+        public Window window;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XKeyEvent
+    {
+        public int type;               /* of event */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;          /* "event" window it is reported relative to */
+        public Window root;            /* root window that the event occurred on */
+        public Window subwindow;       /* child window */
+        public ulong time;              /* milliseconds */
+        public int x, y;               /* pointer x, y coordinates in event window */
+        public int x_root, y_root;     /* coordinates relative to root */
+        public uint state;     /* key or button mask */
+        public uint keycode;   /* detail */
+        public bool same_screen;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XButtonEvent
+    {
+        public int type;       /* of event */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;    /* true if this came from a SendEvent request */
+        public IntPtr display;   /* Display the event was read from */
+        public Window window;          /* "event" window it is reported relative to */
+        public Window root;            /* root window that the event occurred on */
+        public Window subwindow;   /* child window */
+        public ulong time;      /* milliseconds */
+        public int x, y;       /* pointer x, y coordinates in event window */
+        public int x_root, y_root; /* coordinates relative to root */
+        public uint state; /* key or button mask */
+        public uint button;    /* detail */
+        public bool same_screen;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XMotionEvent
+    {
+        public int type;               /* of event */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;          /* "event" window reported relative to */
+        public Window root;            /* root window that the event occurred on */
+        public Window subwindow;       /* child window */
+        public ulong time;              /* milliseconds */
+        public int x, y;               /* pointer x, y coordinates in event window */
+        public int x_root, y_root;     /* coordinates relative to root */
+        public uint state;     /* key or button mask */
+        public byte is_hint;           /* detail */
+        public bool same_screen;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XCrossingEvent
+    {
+        public int type;               /* of event */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;          /* "event" window reported relative to */
+        public Window root;            /* root window that the event occurred on */
+        public Window subwindow;       /* child window */
+        public ulong time;              /* milliseconds */
+        public int x, y;               /* pointer x, y coordinates in event window */
+        public int x_root, y_root;     /* coordinates relative to root */
+        public NotifyMode mode;               /* NotifyNormal, NotifyGrab, NotifyUngrab */
+        public NotifyDetail detail;
+        public bool same_screen;       /* same screen flag */
+        public bool focus;             /* boolean focus */
+        public uint state;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XFocusChangeEvent
+    {
+        public int type;               /* FocusIn or FocusOut */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;          /* window of event */
+        NotifyMode mode; 
+        NotifyDetail detail;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XKeymapEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public byte[] key_vector; // 32 byte vector
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XExposeEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public int x, y;
+        public int width, height;
+        public int count;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XGraphicsExposeEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window drawable;
+        public int x, y;
+        public int width, height;
+        public int count;              /* if non-zero, at least this many more */
+        public RequestCodes major_code;         /* core is CopyArea or CopyPlane */
+        public int minor_code; // No specific values defined.
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XNoExposeEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window drawable;
+        public RequestCodes major_code;         /* core is CopyArea or CopyPlane */
+        public int minor_code;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XVisibilityEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public int state;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XCreateWindowEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window parent;          /* parent of the window */
+        public Window window;          /* window id of window created */
+        public int x, y;               /* window location */
+        public int width, height;      /* size of window */
+        public int border_width;       /* border width */
+        public bool override_redirect;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XMapRequestEvent
+    {
+        public int type;
+        public ulong serial;
+        public bool send_event;
+        public IntPtr display;
+        public Window parent;
+        public Window window;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XMapEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;    /* true if this came from a SendEvent request */
+        public IntPtr display;   /* Display the event was read from */
+        public Window @event;
+        public Window window;
+        public bool override_redirect; /* boolean, is override set... */
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XUnmapEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;    /* true if this came from a SendEvent request */
+        public IntPtr display;   /* Display the event was read from */
+        public Window @event;
+        public Window window;
+        public bool from_configure;
+    }
+
+    /// <summary>
+    /// Event raised when a window is destroyed, e.g. by an X client
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XDestroyWindowEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;    /* true if this came from a SendEvent request */
+        public IntPtr display;   /* Display the event was read from */
+        public Window @event;
+        public Window window;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XGravityEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window @event;
+        public Window window;
+        public int x, y;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XResizeRequestEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public int width, height;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XCirculateEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window @event;
+        public Window window;
+        public int place;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XCirculateRequestEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window parent;
+        public Window window;
+        public int place;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XPropertyEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public Atom atom;
+        public long time;
+        public int state;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XSelectionClearEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public Atom selection;
+        public long time;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XSelectionRequestEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window owner;
+        public Window requestor;
+        public Atom selection;
+        public Atom target;
+        public Atom property;
+        public long time;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XSelectionEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window requestor;
+        public Atom selection;
+        public Atom target;
+        public Atom property;          /* ATOM or None */
+        public long time;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XColorMapEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public Colormap colormap;      /* COLORMAP or None */
+        public bool @new;
+        public int state;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XClientMessageEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;
+        public Atom message_type;
+        public int format;
+        public IntPtr data;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XMappingEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;        /* true if this came from a SendEvent request */
+        public IntPtr display;       /* Display the event was read from */
+        public Window window;          /* unused */
+        public MappingType request;            /* one of MappingModifier, MappingKeyboard,
+                                   MappingPointer */
+        public int first_keycode;      /* first keycode */
+        public int count;
+    }
+
+
+    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
+    public struct XConfigureRequestEvent
+    {
+        public int type;
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;    /* true if this came from a SendEvent request */
+        public IntPtr display;   /* Display the event was read from */
+        public Window parent;
+        public Window window;
+        public int x;
+        public int y;
+        public int width;
+        public int height;
+        public int border_width;
+        public Window above;
+        public int detail;     /* Above, Below, TopIf, BottomIf, Opposite */
+        public ulong value_mask;
+    }
+
+
+    /// <summary>
+    /// Raised to notify the X window manager that a window has changed parents.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XReparentEvent
+    {
+        public int type;               /* ReparentNotify */
+        public ulong serial;   /* # of last request processed by server */
+        public bool send_event;    /* true if this came from a SendEvent request */
+        public IntPtr display;   /* Display the event was read from */
+        public Window @event;
+        public Window window;
+        /// <summary>
+        /// Identifies the new parent window.
+        /// </summary>
+        public Window parent;
+        public int x, y;
+        public bool override_redirect;
+    }
+
 
     public partial class Xlib
     {

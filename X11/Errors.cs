@@ -10,9 +10,9 @@ namespace X11
         public IntPtr display;
         public XID resourceid;
         public ulong serial;
-        public char error_code;
-        public char request_code;
-        public char minor_code;
+        public byte error_code;
+        public byte request_code;
+        public byte minor_code;
     }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]

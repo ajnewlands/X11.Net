@@ -5,291 +5,132 @@ namespace X11
 {
     public enum XID : ulong { }
 
-    public enum PixmapFormat : int {XYBitmap = 0, XYPixmap = 1, ZPixmap = 2 };
-
     public enum Status: int
     {
         Failure = 0,
     }
 
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XImage
+    public enum RequestCodes: int
     {
-        public int width, height;
-        public int xoffset;
-        public int format;
-        public IntPtr data;
-        public int byte_order;
-        public int bitmap_unit;
-        public int bitmap_bit_order;
-        public int bitmap_pad;
-        public int depth;
-        public int bytes_per_line;
-        public int bits_per_pixel;
-        public ulong red_mask;
-        public ulong green_mask;
-        public ulong blue_mask;
-        public IntPtr obdata;
-        private struct funcs
-        {
-            IntPtr create_image;
-            IntPtr destroy_image;
-            IntPtr get_pixel;
-            IntPtr put_pixel;
-            IntPtr sub_image;
-            IntPtr add_pixel;
-        }
-
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XWindowAttributes
-    {
-        public int x, y;
-        public uint width, height;
-        public int border_width;
-        public int depth;
-        public IntPtr visual;
-        public Window root;
-        public int @class;
-        public int bit_gravity;
-        public int win_gravity;
-        public int backing_store;
-        public ulong backing_planes;
-        public ulong backing_pixel;
-        public bool save_under;
-        public Colormap colormap; 
-        public bool map_installed;
-        public int map_state;
-        public long all_event_masks;
-        public long your_event_masks;
-        public long do_not_propagate_mask;
-        public bool override_redirect;
-        public IntPtr screen;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Size = (24*sizeof(long)))]
-    public struct XEvent
-    {
-        public int type;
-        public ulong serial;
-        public bool send_event;
-        public IntPtr display;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Size = (24*sizeof(long)))]
-    public struct XMapRequestEvent
-    {
-        public int type;
-        public ulong serial;
-        public bool send_event;
-        public IntPtr display;
-        public Window parent;
-        public Window window;
-    }
-
-    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
-    public struct XMapNotifyEvent
-    {
-        public int type;
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;    /* true if this came from a SendEvent request */
-        public IntPtr display;   /* Display the event was read from */
-        public Window @event;
-        public Window window;
-        public bool override_redirect; /* boolean, is override set... */
-        }
-
-    [StructLayout(LayoutKind.Sequential, Size = (24*sizeof(long)))]
-    public struct XUnmapEvent
-    {
-        public int type;
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;    /* true if this came from a SendEvent request */
-        public IntPtr display;   /* Display the event was read from */
-        public Window @event;
-        public Window window;
-        public bool from_configure;
-     }
-
-    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
-    public struct XButtonEvent
-    {
-        public int type;       /* of event */
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;    /* true if this came from a SendEvent request */
-        public IntPtr display;   /* Display the event was read from */
-        public Window window;          /* "event" window it is reported relative to */
-        public Window root;            /* root window that the event occurred on */
-        public Window subwindow;   /* child window */
-        public ulong  time;      /* milliseconds */
-        public int x, y;       /* pointer x, y coordinates in event window */
-        public int x_root, y_root; /* coordinates relative to root */
-        public uint state; /* key or button mask */
-        public uint button;    /* detail */
-        public bool same_screen;
-    }
-
-    /// <summary>
-    /// Event raised when a window is destroyed, e.g. by an X client
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential, Size = (24 * sizeof(long)))]
-    public struct XDestroyWindowEvent
-    {
-        public int type;
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;    /* true if this came from a SendEvent request */
-        public IntPtr display;   /* Display the event was read from */
-        public Window @event;
-        public Window window;
-        }
-
-    [StructLayout(LayoutKind.Sequential, Size = (24*sizeof(long)))]
-    public struct XConfigureRequestEvent
-    {
-        public int type;
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;    /* true if this came from a SendEvent request */
-        public IntPtr display;   /* Display the event was read from */
-        public Window parent;
-        public Window window;
-        public int x;
-        public int y;
-        public int width;
-        public int height;
-        public int border_width;
-        public Window above;
-        public int detail;     /* Above, Below, TopIf, BottomIf, Opposite */
-        public ulong value_mask;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XCreateNotifyEvent
-    {
-        public int type;       /* CreateNotify */
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;    /* true if this came from a SendEvent request */
-        public IntPtr display;   /* Display the event was read from */
-        public Window parent;      /* parent of the window */
-        public Window window;      /* window id of window created */
-        public int x, y;       /* window location */
-        public int width, height;  /* size of window */
-        public int border_width;   /* border width */
-        public bool override_redirect;	/* creation should be overridden */
-    }
-
-    /// <summary>
-    /// Raised to notify the X window manager that a window has changed parents.
-    /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XReparentNotifyEvent
-    {
-        public int type;               /* ReparentNotify */
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;    /* true if this came from a SendEvent request */
-        public IntPtr display;   /* Display the event was read from */
-        public Window @event;
-        public Window window;
-        /// <summary>
-        /// Identifies the new parent window.
-        /// </summary>
-        public Window parent;
-        public int x, y;
-        public bool override_redirect;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XMotionEvent
-    {
-        public int type;               /* of event */
-        public ulong serial;   /* # of last request processed by server */
-        public bool send_event;        /* true if this came from a SendEvent request */
-        public IntPtr display;       /* Display the event was read from */
-        public Window window;          /* "event" window reported relative to */
-        public Window root;            /* root window that the event occurred on */
-        public Window subwindow;       /* child window */
-        public ulong time;              /* milliseconds */
-        public int x, y;               /* pointer x, y coordinates in event window */
-        public int x_root, y_root;     /* coordinates relative to root */
-        public uint state;     /* key or button mask */
-        public byte is_hint;           /* detail */
-        public bool same_screen;
-    }
-
-
-    [StructLayout(LayoutKind.Sequential)]
-    public struct XWindowChanges
-    {
-        public int x, y;
-        public int width, height;
-        public int border_width;
-        public Window sibling;
-        public int stack_mode;
-    }
-
-
-    public partial class Xlib
-    {
-
-
-        /// <summary>
-        /// Returns a pointer which can be marshalled to an XImage object for field access in managed code.
-        /// This should be freed after use with the XDestroyImage function (from Xutil).
-        /// </summary>
-        /// <param name="display">Pointer to an open X display</param>
-        /// <param name="drawable">Window ID to capture</param>
-        /// <param name="x">X-offset for capture region</param>
-        /// <param name="y">Y-offset for capture region</param>
-        /// <param name="width">Width of capture region</param>
-        /// <param name="height">Height of capture region</param>
-        /// <param name="plane_mask"></param>
-        /// <param name="format">One of XYBitmap, XYPixmap, ZPixmap</param>
-        /// <returns></returns>
-        [DllImport("libX11.so.6")]
-        public static extern ref XImage XGetImage(IntPtr display, Window drawable, int x, int y,
-            uint width, uint height, ulong plane_mask, PixmapFormat format);
-
-
-        [DllImport("libX11.so.6")]
-        public static extern int XSelectInput(IntPtr display, Window window, EventMask event_mask);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
-            ref Window WinParentReturn, ref Window[] ChildrenReturn, ref uint nChildren);
-
-        [DllImport("libX11.so.6")]
-        public static extern Window XCreateSimpleWindow(IntPtr display, Window parent, int x, int y,
-            uint width, uint height, uint border_width, ulong border_colour, ulong background_colour);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XDestroyWindow(IntPtr display, Window window);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XReparentWindow(IntPtr display, Window window, Window parent, int x, int y);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XMapWindow(IntPtr display, Window window);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XUnmapWindow(IntPtr display, Window window);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XAddToSaveSet(IntPtr display, Window window);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XRemoveFromSaveSet(IntPtr dispay, Window window);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XConfigureWindow(IntPtr display, Window window, ulong value_mask, ref XWindowChanges changes);
-
-
-        [DllImport("libX11.so.6")]
-        public static extern int XSetWindowBackground(IntPtr display, Window window, ulong pixel);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XClearWindow(IntPtr display, Window window);
-
-        [DllImport("libX11.so.6")]
-        public static extern int XMoveWindow(IntPtr display, Window window, int x, int y);
+         X_CreateWindow                 = 1,
+         X_ChangeWindowAttributes       = 2,
+         X_GetWindowAttributes          = 3,
+         X_DestroyWindow                = 4,
+         X_DestroySubwindows            = 5,
+         X_ChangeSaveSet                = 6,
+         X_ReparentWindow               = 7,
+         X_MapWindow                    = 8,
+         X_MapSubwindows                = 9,
+         X_UnmapWindow                 = 10,
+         X_UnmapSubwindows             = 11,
+         X_ConfigureWindow             = 12,
+         X_CirculateWindow             = 13,
+         X_GetGeometry                 = 14,
+         X_QueryTree                   = 15,
+         X_InternAtom                  = 16,
+         X_GetAtomName                 = 17,
+         X_ChangeProperty              = 18,
+         X_DeleteProperty              = 19,
+         X_GetProperty                 = 20,
+         X_ListProperties              = 21,
+         X_SetSelectionOwner           = 22,
+         X_GetSelectionOwner           = 23,
+         X_ConvertSelection            = 24,
+         X_SendEvent                   = 25,
+         X_GrabPointer                 = 26,
+         X_UngrabPointer               = 27,
+         X_GrabButton                  = 28,
+         X_UngrabButton                = 29,
+         X_ChangeActivePointerGrab     = 30,
+         X_GrabKeyboard                = 31,
+         X_UngrabKeyboard              = 32,
+         X_GrabKey                     = 33,
+         X_UngrabKey                   = 34,
+         X_AllowEvents                 = 35,
+         X_GrabServer                  = 36,
+         X_UngrabServer                = 37,
+         X_QueryPointer                = 38,
+         X_GetMotionEvents             = 39,
+         X_TranslateCoords             = 40,
+         X_WarpPointer                 = 41,
+         X_SetInputFocus               = 42,
+         X_GetInputFocus               = 43,
+         X_QueryKeymap                 = 44,
+         X_OpenFont                    = 45,
+         X_CloseFont                   = 46,
+         X_QueryFont                   = 47,
+         X_QueryTextExtents            = 48,
+         X_ListFonts                   = 49,
+         X_ListFontsWithInfo           = 50,
+         X_SetFontPath                 = 51,
+         X_GetFontPath                 = 52,
+         X_CreatePixmap                = 53,
+         X_FreePixmap                  = 54,
+         X_CreateGC                    = 55,
+         X_ChangeGC                    = 56,
+         X_CopyGC                      = 57,
+         X_SetDashes                   = 58,
+         X_SetClipRectangles           = 59,
+         X_FreeGC                      = 60,
+         X_ClearArea                   = 61,
+         X_CopyArea                    = 62,
+         X_CopyPlane                   = 63,
+         X_PolyPoint                   = 64,
+         X_PolyLine                    = 65,
+         X_PolySegment                 = 66,
+         X_PolyRectangle               = 67,
+         X_PolyArc                     = 68,
+         X_FillPoly                    = 69,
+         X_PolyFillRectangle           = 70,
+         X_PolyFillArc                 = 71,
+         X_PutImage                    = 72,
+         X_GetImage                    = 73,
+         X_PolyText8                   = 74,
+         X_PolyText16                  = 75,
+         X_ImageText8                  = 76,
+         X_ImageText16                 = 77,
+         X_CreateColormap              = 78,
+         X_FreeColormap                = 79,
+         X_CopyColormapAndFree         = 80,
+         X_InstallColormap             = 81,
+         X_UninstallColormap           = 82,
+         X_ListInstalledColormaps      = 83,
+         X_AllocColor                  = 84,
+         X_AllocNamedColor             = 85,
+         X_AllocColorCells             = 86,
+         X_AllocColorPlanes            = 87,
+         X_FreeColors                  = 88,
+         X_StoreColors                 = 89,
+         X_StoreNamedColor             = 90,
+         X_QueryColors                 = 91,
+         X_LookupColor                 = 92,
+         X_CreateCursor                = 93,
+         X_CreateGlyphCursor           = 94,
+         X_FreeCursor                  = 95,
+         X_RecolorCursor               = 96,
+         X_QueryBestSize               = 97,
+         X_QueryExtension              = 98,
+         X_ListExtensions              = 99,
+         X_ChangeKeyboardMapping       = 100,
+         X_GetKeyboardMapping          = 101,
+         X_ChangeKeyboardControl       = 102,
+         X_GetKeyboardControl          = 103,
+         X_Bell                        = 104,
+         X_ChangePointerControl        = 105,
+         X_GetPointerControl           = 106,
+         X_SetScreenSaver              = 107,
+         X_GetScreenSaver              = 108,
+         X_ChangeHosts                 = 109,
+         X_ListHosts                   = 110,
+         X_SetAccessControl            = 111,
+         X_SetCloseDownMode            = 112,
+         X_KillClient                  = 113,
+         X_RotateProperties            = 114,
+         X_ForceScreenSaver            = 115,
+         X_SetPointerMapping           = 116,
+         X_GetPointerMapping           = 117,
+         X_SetModifierMapping          = 118,
+         X_GetModifierMapping          = 119,
+         X_NoOperation                 = 127,
     }
 }

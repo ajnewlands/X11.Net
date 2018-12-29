@@ -92,6 +92,14 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern Status XFreeColormap(IntPtr display, Colormap colormap);
 
+        [DllImport("libX11.so.6")]
+        public static extern Status XInstallColormap(IntPtr display, Colormap colormap);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XUninstallColormap(IntPtr display, Colormap colormap);
+
+        [DllImport("libX11.so.6")]
+        public static extern Colormap[] XListInstalledColormaps(IntPtr display, Window window, ref int num_return);
 
         /// <summary>
         /// The XParseColor function looks up the string name of a color with respect to the screen associated with the
