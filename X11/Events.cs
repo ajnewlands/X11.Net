@@ -595,7 +595,7 @@ namespace X11
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
         /// <returns></returns>
         [DllImport("libX11.so.6")]
-        public static extern int XCheckMaskEvent(IntPtr display, EventMask mask, IntPtr event_return);
+        public static extern bool XCheckMaskEvent(IntPtr display, EventMask mask, IntPtr event_return);
 
         /// <summary>
         /// The XCheckTypedEvent function searches the event queue and then any events available on the server connection
@@ -607,9 +607,9 @@ namespace X11
         /// <param name="display">Connected display</param>
         /// <param name="type">Event type</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns>Zero on error</returns>
+        /// <returns></returns>
         [DllImport("libX11.so.6")]
-        public static extern Status XCheckTypedEvent(IntPtr display, Event type, IntPtr event_return);
+        public static extern bool XCheckTypedEvent(IntPtr display, Event type, IntPtr event_return);
 
         /// <summary>
         /// The XCheckTypedWindowEvent function searches the event queue and then any events available on the server con‐
@@ -622,9 +622,9 @@ namespace X11
         /// <param name="window">Window specifier</param>
         /// <param name="type">Event type</param>
         /// <param name="event_return">Pre-allocated buffer to hold the returned event</param>
-        /// <returns>Zero on error</returns>
+        /// <returns></returns>
         [DllImport("libX11.so.6")]
-        public static extern Status XCheckTypedWindowEvent(IntPtr display, Window window, Event type, IntPtr event_return);
+        public static extern bool XCheckTypedWindowEvent(IntPtr display, Window window, Event type, IntPtr event_return);
 
         /// <summary>
         /// The XSync function flushes the output buffer and then waits until all requests have been received and pro‐
@@ -679,5 +679,8 @@ namespace X11
         /// <returns>Number of events pending removal from the queue</returns>
         [DllImport("libX11.so.6")]
         public static extern int XPending(IntPtr display);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XSendEvent(IntPtr display, Window window, bool propagate, long event_mask, IntPtr event_send);
     }
 }

@@ -1,14 +1,28 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace X11
 {
     public enum PixmapFormat : int { XYBitmap = 0, XYPixmap = 1, ZPixmap = 2 }; 
 
+    public enum Direction: int
+    {
+        RaiseLowest=0,
+        LowerHighest=1,
+    }
+
     public enum ChangeMode: int
     {
         SetModeInsert = 0,
         SetModeDelete = 1,
+    }
+
+    public enum RevertFocus: int
+    {
+        RevertToNone =0,
+        RevertToPointerRoot =1,
+        RevertToParent=2,
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -147,7 +161,7 @@ namespace X11
 
         [DllImport("libX11.so.6")]
         public static extern int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
-            ref Window WinParentReturn, ref Window[] ChildrenReturn, ref uint nChildren);
+            ref Window WinParentReturn, ref IntPtr ChildrenReturn, ref uint nChildren);
 
         [DllImport("libX11.so.6")]
         public static extern Window XCreateSimpleWindow(IntPtr display, Window parent, int x, int y,
@@ -171,9 +185,45 @@ namespace X11
         public static extern int XSetWindowBackground(IntPtr display, Window window, ulong pixel);
 
         [DllImport("libX11.so.6")]
+        public static extern Status XSetWindowBorder(IntPtr display, Window window, ulong border_pixel);
+
+        [DllImport("libX11.so.6")]
         public static extern int XClearWindow(IntPtr display, Window window);
 
         [DllImport("libX11.so.6")]
         public static extern int XMoveWindow(IntPtr display, Window window, int x, int y);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XResizeWindow(IntPtr display, Window window, uint width, uint height);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XMoveResizeWindow(IntPtr display, Window window, int x, int y, uint width, uint height);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XSetWindowBorderWidth(IntPtr display, Window window, uint width);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XSetInputFocus(IntPtr display, Window focus, RevertFocus revert_to, long time);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XGetInputFocus(IntPtr display, ref Window focus_return, ref RevertFocus revert_to_return);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XRaiseWindow(IntPtr display, Window window);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XLowerWindow(IntPtr display, Window window);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XCirculateSubwindows(IntPtr display, Window window, Direction direction);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XCirculateSubwindowsUp(IntPtr display, Window window);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XCirculateSubwindowsDown(IntPtr display, Window window);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XRestackWindows(IntPtr display, IntPtr windows, int nwindows);
     }
 }

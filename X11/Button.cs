@@ -24,6 +24,25 @@ namespace X11
         Async = 1,
     }
 
+    public enum KeyButtonMask: uint
+    {
+        ShiftMask = (1<<0),
+        LockMask = (1<<1),
+        ControlMask = (1<<2),
+        Mod1Mask = (1<<3),
+        Mod2Mask = (1<<4),
+        Mod3Mask = (1<<5),
+        Mod4Mask = (1<<6),
+        Mod5Mask = (1<<7),
+        Button1Mask = (1<<8),
+        Button2Mask = (1<<9),
+        Button3Mask = (1<<10),
+        Button4Mask = (1<<11),
+        Button5Mask = (1<<12),
+        AnyModifier = (1<<15),
+    }
+
+
     public partial class Xlib
     {
         /// <summary>
@@ -53,8 +72,8 @@ namespace X11
         /// <param name="cursor">Specify the cursor to display or None (0)</param>
         /// <returns></returns>
         [DllImport("libX11.so.6")]
-        public static extern Status XGrabButton(IntPtr display, Button button, uint modifiers, Window grab_window,
-        bool owner_events, uint event_mask, GrabMode pointer_mode, GrabMode keyboard_mode, Window confine_to, FontCursor cursor);
+        public static extern Status XGrabButton(IntPtr display, Button button, KeyButtonMask modifiers, Window grab_window,
+        bool owner_events, EventMask event_mask, GrabMode pointer_mode, GrabMode keyboard_mode, Window confine_to, FontCursor cursor);
 
         /// <summary>
         ///  The XUngrabButton function releases the passive button/key combination on the specified window if it was
@@ -68,7 +87,7 @@ namespace X11
         /// <param name="grab_button">Specify the grab window.</param>
         /// <returns></returns>
         [DllImport("libX11.so.6")]
-        public static extern Status XUngrabButton(IntPtr display, Button button, uint modifiers, Window grab_window);
+        public static extern Status XUngrabButton(IntPtr display, Button button, KeyButtonMask modifiers, Window grab_window);
     }
 
 
