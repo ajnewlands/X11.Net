@@ -12,6 +12,38 @@ namespace SimpleWM
         public Window frame;
     }
 
+    public enum MouseMoveType
+    {
+        TitleDrag,
+        TopLeftFrameDrag,
+        TopRightFrameDrag,
+        BottomLeftFrameDrag,
+        BottomRightFrameDrag,
+        RightFrameDrag,
+        TopFrameDrag,
+        LeftFrameDrag,
+        BottomFrameDrag,
+    }
+
+    public class MouseMovement
+    {
+        public MouseMoveType Type { get; private set; }
+        public int MotionStartX { get; set; } = 0;
+        public int MotionStartY { get; set; } = 0;
+        public int WindowOriginPointX { get; private set; } = 0;
+        public int WindowOriginPointY { get; private set; } = 0;
+
+        public MouseMovement( MouseMoveType type, int Motion_X, int Motion_Y, int Window_X, int Window_Y )
+        {
+            Type = type;
+            MotionStartX = Motion_X;
+            MotionStartY = Motion_Y;
+            WindowOriginPointX = Window_X;
+            WindowOriginPointY = Window_Y;
+        }
+
+    }
+
     public class WindowManager
     {
         private IntPtr display;
@@ -20,11 +52,7 @@ namespace SimpleWM
         private readonly Dictionary<Window, WindowGroup> WindowIndexByFrame = new Dictionary<Window, WindowGroup>();
         private readonly Dictionary<Window, WindowGroup> WindowIndexByTitle = new Dictionary<Window, WindowGroup>();
 
-        private int MotionStartX = 0;
-        private int MotionStartY = 0;
-        private int WindowOriginPointX = 0;
-        private int WindowOriginPointY = 0;
-
+        private MouseMovement MouseMovement;
 
         public XErrorHandlerDelegate OnError;
 
@@ -194,22 +222,57 @@ namespace SimpleWM
             frame = wg.frame;
             var child = wg.child;
             FocusAndRaiseWindow(child);
-            this.MotionStartX = ev.x_root;
-            this.MotionStartY = ev.y_root;
             Xlib.XGetWindowAttributes(this.display, frame, out var attr);
-            this.WindowOriginPointX = attr.x;
-            this.WindowOriginPointY = attr.y;
+            this.MouseMovement = new MouseMovement(MouseMoveType.TitleDrag, ev.x_root, ev.y_root, attr.x, attr.y);
             return;
         }
 
         private void LeftClickFrame(XButtonEvent ev)
         {
             Console.WriteLine("Left click frame");
-            this.MotionStartX = ev.x_root;
-            this.MotionStartY = ev.y_root;
             Xlib.XGetWindowAttributes(this.display, ev.window, out var attr);
-            this.WindowOriginPointX = attr.x;
-            this.WindowOriginPointY = attr.y;
+
+            var control_width = (attr.width / 2) <= 40 ? attr.width / 2 : 40;
+            var control_height = (attr.height / 2) <= 40 ? attr.width / 2 : 40;
+
+            if( ev.x >= attr.width - control_width) // right side
+            {
+                if( ev.y >= attr.height - control_height )
+                {
+                    this.MouseMovement = new MouseMovement(MouseMoveType.BottomRightFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+                }
+                else if (ev.y <= control_height)
+                {
+                    this.MouseMovement = new MouseMovement(MouseMoveType.TopRightFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+                }
+                else
+                {
+                    this.MouseMovement = new MouseMovement(MouseMoveType.RightFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+                }
+            }
+            else if (ev.x <= control_width)
+            {
+                if (ev.y >= attr.height - control_height)
+                {
+                    this.MouseMovement = new MouseMovement(MouseMoveType.BottomLeftFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+                }
+                else if (ev.y <= control_height)
+                {
+                    this.MouseMovement = new MouseMovement(MouseMoveType.TopLeftFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+                }
+                else
+                {
+                    this.MouseMovement = new MouseMovement(MouseMoveType.LeftFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+                }
+            }
+            else if (ev.y >= attr.height / 2)
+            {
+                this.MouseMovement = new MouseMovement(MouseMoveType.BottomFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+            }
+            else
+            {
+                this.MouseMovement = new MouseMovement(MouseMoveType.TopFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
+            }
             return;
         }
 
@@ -255,9 +318,10 @@ namespace SimpleWM
         private void LeftDragTitle(XMotionEvent ev)
         {
             // Move the window, after converting co-ordinates into offsets relative to the origin point of motion
-            var new_y = ev.y_root - this.MotionStartY;
-            var new_x = ev.x_root - this.MotionStartX;
-            Xlib.XMoveWindow(this.display, WindowIndexByTitle[ev.window].frame, this.WindowOriginPointX + new_x, this.WindowOriginPointY + new_y);
+            var new_y = ev.y_root - this.MouseMovement.MotionStartY;
+            var new_x = ev.x_root - this.MouseMovement.MotionStartX;
+            Xlib.XMoveWindow(this.display, WindowIndexByTitle[ev.window].frame, 
+                this.MouseMovement.WindowOriginPointX + new_x, this.MouseMovement.WindowOriginPointY + new_y);
         }
 
         private void LeftDragFrame(XMotionEvent ev)
@@ -266,40 +330,70 @@ namespace SimpleWM
             var title = WindowIndexByFrame[frame].title;
             var client = WindowIndexByFrame[frame].child;
 
-            var y_delta = ev.y_root - this.MotionStartY;
-            var x_delta = ev.x_root - this.MotionStartX;
+            var y_delta = 0;
+            var x_delta = 0;
 
-            // Resize and move the frame
+            var w_delta = 0;
+            var h_delta = 0;
+
+            var t = this.MouseMovement.Type;
+
+            // Stretch to the right, or compress left, no lateral relocation of window origin.
+            if (t == MouseMoveType.RightFrameDrag
+                || t == MouseMoveType.TopRightFrameDrag
+                || t == MouseMoveType.BottomRightFrameDrag)
+            {
+                w_delta = ev.x_root - this.MouseMovement.MotionStartX; // width change
+            }
+            // Stretch down, or compress upwards, no vertical movement of the window origin.
+            if (t == MouseMoveType.BottomFrameDrag
+                || t == MouseMoveType.BottomRightFrameDrag
+                || t == MouseMoveType.BottomLeftFrameDrag)
+            {
+                h_delta = ev.y_root - this.MouseMovement.MotionStartY;
+            }
+            // Combine vertical stretch with movement of the window origin.
+            if (t == MouseMoveType.TopFrameDrag
+                || t == MouseMoveType.TopRightFrameDrag
+                || t == MouseMoveType.TopLeftFrameDrag)
+            {
+                h_delta = this.MouseMovement.MotionStartY - ev.y_root;
+                y_delta = -h_delta;
+            }
+            // Combined left stretch with movement of the window origin
+            if (t == MouseMoveType.LeftFrameDrag
+                || t == MouseMoveType.TopLeftFrameDrag
+                || t == MouseMoveType.BottomLeftFrameDrag)
+            {
+                w_delta = this.MouseMovement.MotionStartX - ev.x_root;
+                x_delta = - w_delta;
+            }
+
+            //// Resize and move the frame
             Xlib.XGetWindowAttributes(this.display, frame, out var attr);
-            var new_width = (uint)(attr.width + Math.Abs(x_delta));
-            var new_height = (uint)(attr.height + Math.Abs(y_delta));
-            //var new_x = x_delta < 0 ? attr.x - Math.Abs(x_delta) : attr.x;
-            //var new_y = y_delta < 0 ? attr.y - Math.Abs(y_delta) : attr.y;
-            //Xlib.XMoveWindow(this.display, frame, new_x, new_y);
+            var new_width = (uint)(attr.width + w_delta);
+            var new_height = (uint)(attr.height + h_delta);
             Xlib.XResizeWindow(this.display, frame, new_width, new_height);
+            Xlib.XMoveWindow(this.display, frame, attr.x + x_delta, attr.y + y_delta);
             Xlib.XClearWindow(this.display, frame);
-            Console.WriteLine($"Frame Resized to {new_width}x{new_height}");
 
-
-            // Resize and move the title bar
+            //// Resize and move the title bar
             Xlib.XGetWindowAttributes(this.display, title, out attr);
-            new_width = (uint)(attr.width + Math.Abs(x_delta));
+            new_width = (uint)(attr.width + w_delta);
             new_height = (uint)attr.height;
             Xlib.XResizeWindow(this.display, title, new_width, new_height);
             Xlib.XClearWindow(this.display, title);
-            Console.WriteLine($"Title Resized to {new_width}x{new_height}");
 
-            // Resize and move the title bar
+            //// Resize and move the title bar
             Xlib.XGetWindowAttributes(this.display, client, out attr);
-            new_width = (uint)(attr.width + Math.Abs(x_delta));
-            new_height = (uint)(attr.height + Math.Abs(y_delta));
+            new_width = (uint)(attr.width + w_delta);
+            new_height = (uint)(attr.height + h_delta);
             Xlib.XResizeWindow(this.display, client, new_width, new_height);
             Xlib.XClearWindow(this.display, client);
-            Console.WriteLine($"Client Resized to {new_width}x{new_height}");
 
-            this.MotionStartX = ev.x_root;
-            this.MotionStartY = ev.y_root;
-            Xlib.XClearWindow(this.display, title);
+            this.MouseMovement.MotionStartX = ev.x_root;
+            this.MouseMovement.MotionStartY = ev.y_root;
+            //Xlib.XClearWindow(this.display, title);
 
         }
 
