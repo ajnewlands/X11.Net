@@ -373,8 +373,7 @@ namespace SimpleWM
             Xlib.XGetWindowAttributes(this.display, frame, out var attr);
             var new_width = (uint)(attr.width + w_delta);
             var new_height = (uint)(attr.height + h_delta);
-            Xlib.XResizeWindow(this.display, frame, new_width, new_height);
-            Xlib.XMoveWindow(this.display, frame, attr.x + x_delta, attr.y + y_delta);
+            Xlib.XMoveResizeWindow(this.display, frame, attr.x + x_delta, attr.y + y_delta, new_width, new_height);
             Xlib.XClearWindow(this.display, frame);
 
             //// Resize and move the title bar
