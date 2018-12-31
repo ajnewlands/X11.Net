@@ -160,8 +160,26 @@ namespace X11
         public static extern int XSelectInput(IntPtr display, Window window, EventMask event_mask);
 
         [DllImport("libX11.so.6")]
-        public static extern int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
+        private static extern int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
             ref Window WinParentReturn, ref IntPtr ChildrenReturn, ref uint nChildren);
+        public static int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
+            ref Window WinParentReturn, out List<Window> ChildrenReturn)
+        {
+            ChildrenReturn = new List<Window>();
+            IntPtr pChildren = new IntPtr();
+            uint nChildren = 0;
+
+            var r = Xlib.XQueryTree(display, window, ref WinRootReturn, ref WinParentReturn,
+                ref pChildren, ref nChildren);
+
+            for (int i = 0; i < nChildren; i++)
+            {
+                var ptr = new IntPtr(pChildren.ToInt64() + i * sizeof(Window));
+                ChildrenReturn.Add( (Window)Marshal.ReadInt64(ptr) );
+            }
+
+            return r;
+        }
 
         [DllImport("libX11.so.6")]
         public static extern Window XCreateSimpleWindow(IntPtr display, Window parent, int x, int y,
@@ -225,5 +243,11 @@ namespace X11
 
         [DllImport("libX11.so.6")]
         public static extern Status XRestackWindows(IntPtr display, IntPtr windows, int nwindows);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XFetchName(IntPtr display, Window window, ref String name_return);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XDrawString(IntPtr display, Window drawable, IntPtr gc, int x, int y, byte[] str, int length);
     }
 }

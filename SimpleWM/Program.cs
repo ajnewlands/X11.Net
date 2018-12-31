@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using X11;
 
 namespace SimpleWM
@@ -10,6 +11,13 @@ namespace SimpleWM
         public Window title;
         public Window child;
         public Window frame;
+    }
+
+    public class WMCursors
+    {
+        public Cursor DefaultCursor;
+        public Cursor FrameCursor;
+        public Cursor TitleCursor;
     }
 
     public enum MouseMoveType
@@ -48,6 +56,7 @@ namespace SimpleWM
     {
         private IntPtr display;
         private Window root;
+        private WMCursors Cursors = new WMCursors();
         private readonly Dictionary<Window, WindowGroup> WindowIndexByClient = new Dictionary<Window, WindowGroup>();
         private readonly Dictionary<Window, WindowGroup> WindowIndexByFrame = new Dictionary<Window, WindowGroup>();
         private readonly Dictionary<Window, WindowGroup> WindowIndexByTitle = new Dictionary<Window, WindowGroup>();
@@ -90,9 +99,12 @@ namespace SimpleWM
                 EventMask.SubstructureRedirectMask | EventMask.SubstructureNotifyMask);
             Xlib.XSync(this.display, false);
 
-            Xlib.XDefineCursor(this.display, this.root, 
-                Xlib.XCreateFontCursor(this.display, FontCursor.XC_left_ptr));
+            this.Cursors.DefaultCursor = Xlib.XCreateFontCursor(this.display, FontCursor.XC_left_ptr);
+            this.Cursors.TitleCursor = Xlib.XCreateFontCursor(this.display, FontCursor.XC_fleur);
+            this.Cursors.FrameCursor = Xlib.XCreateFontCursor(this.display, FontCursor.XC_sizing);
 
+            Xlib.XDefineCursor(this.display, this.root, this.Cursors.DefaultCursor);
+            
 
             // Names: see https://en.wikipedia.org/wiki/X11_color_names
             string BackgroundColor = "black";
@@ -127,6 +139,10 @@ namespace SimpleWM
             if (this.WindowIndexByClient.ContainsKey(child))
                 return; // Window has already been framed.
 
+            var Name = String.Empty;
+            Xlib.XFetchName(this.display, child, ref Name);
+            Console.WriteLine($"Framing {Name}");
+
             Xlib.XGetWindowAttributes(this.display, child, out var attr);
             var title = Xlib.XCreateSimpleWindow(this.display, this.root, attr.x, attr.y, attr.width - (2 * inner_border),
                 (title_height - 2 * inner_border), inner_border, GetPixelByName("slate grey"), GetPixelByName("light slate grey"));
@@ -139,12 +155,13 @@ namespace SimpleWM
                 adjusted_y_loc, attr.width, attr.height + title_height,
                 3, GetPixelByName("dark slate grey"), GetPixelByName("black"));
 
-            Xlib.XSelectInput(this.display, title, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask | EventMask.Button1MotionMask);
-            Xlib.XSelectInput(this.display, frame, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask | EventMask.Button1MotionMask | EventMask.FocusChangeMask);
+            Xlib.XSelectInput(this.display, title, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask 
+                | EventMask.Button1MotionMask | EventMask.ExposureMask);
+            Xlib.XSelectInput(this.display, frame, EventMask.ButtonPressMask | EventMask.ButtonReleaseMask 
+                | EventMask.Button1MotionMask | EventMask.FocusChangeMask | EventMask.SubstructureRedirectMask | EventMask.SubstructureNotifyMask);
 
-            // TODO - ideally the cursor would be some sort of singleton type
-            Xlib.XDefineCursor(this.display, title, Xlib.XCreateFontCursor(this.display, FontCursor.XC_fleur));
-            Xlib.XDefineCursor(this.display, frame, Xlib.XCreateFontCursor(this.display, FontCursor.XC_sizing));
+            Xlib.XDefineCursor(this.display, title, this.Cursors.TitleCursor);
+            Xlib.XDefineCursor(this.display, frame, this.Cursors.FrameCursor);
 
             Console.WriteLine($"(AddFrame) Created frame {frame} for window {child}");
             Xlib.XReparentWindow(this.display, title, frame, 0, 0);
@@ -193,25 +210,24 @@ namespace SimpleWM
 
         void OnButtonPressEvent(X11.XButtonEvent ev)
         {
-            Console.WriteLine($"Pressed {ev.button}, window {ev.window}, X {ev.x_root}, Y {ev.y_root}");
-
+            var client = ev.window;
             if (WindowIndexByClient.ContainsKey(ev.window) && ev.button == (uint)Button.LEFT)
             {
                 LeftClickClientWindow(ev);
-                return;
             }
 
-            if(WindowIndexByTitle.ContainsKey(ev.window) && ev.button == (uint)Button.LEFT)
+            else if(WindowIndexByTitle.ContainsKey(ev.window) && ev.button == (uint)Button.LEFT)
             {
                 LeftClickTitleBar(ev);
-                return;
+                client = WindowIndexByTitle[ev.window].child;
             }
 
-            if( WindowIndexByFrame.ContainsKey(ev.window) && ev.button == (uint)Button.LEFT)
+            else if( WindowIndexByFrame.ContainsKey(ev.window) && ev.button == (uint)Button.LEFT)
             {
                 LeftClickFrame(ev);
-                return;
+                client = WindowIndexByFrame[ev.window].child;
             }
+            FocusAndRaiseWindow(client);
         }
 
         private void LeftClickTitleBar(XButtonEvent ev)
@@ -229,7 +245,6 @@ namespace SimpleWM
 
         private void LeftClickFrame(XButtonEvent ev)
         {
-            Console.WriteLine("Left click frame");
             Xlib.XGetWindowAttributes(this.display, ev.window, out var attr);
 
             var control_width = (attr.width / 2) <= 40 ? attr.width / 2 : 40;
@@ -274,6 +289,15 @@ namespace SimpleWM
                 this.MouseMovement = new MouseMovement(MouseMoveType.TopFrameDrag, ev.x_root, ev.y_root, attr.x, attr.y);
             }
             return;
+        }
+
+        private void UpdateWindowTitle(Window titlebar)
+        {
+            var client = WindowIndexByTitle[titlebar].child;
+            var name = String.Empty;
+            Xlib.XFetchName(this.display, client, ref name);
+            Xlib.XDrawString(this.display, titlebar, Xlib.XDefaultGC(this.display, Xlib.XDefaultScreen(this.display)), 2, 13,
+    Encoding.ASCII.GetBytes(name), name.Length);
         }
 
         private void  LeftClickClientWindow(XButtonEvent ev)
@@ -374,26 +398,21 @@ namespace SimpleWM
             var new_width = (uint)(attr.width + w_delta);
             var new_height = (uint)(attr.height + h_delta);
             Xlib.XMoveResizeWindow(this.display, frame, attr.x + x_delta, attr.y + y_delta, new_width, new_height);
-            Xlib.XClearWindow(this.display, frame);
 
             //// Resize and move the title bar
             Xlib.XGetWindowAttributes(this.display, title, out attr);
             new_width = (uint)(attr.width + w_delta);
             new_height = (uint)attr.height;
             Xlib.XResizeWindow(this.display, title, new_width, new_height);
-            Xlib.XClearWindow(this.display, title);
 
-            //// Resize and move the title bar
+            //// Resize and move the client window bar
             Xlib.XGetWindowAttributes(this.display, client, out attr);
             new_width = (uint)(attr.width + w_delta);
             new_height = (uint)(attr.height + h_delta);
             Xlib.XResizeWindow(this.display, client, new_width, new_height);
-            Xlib.XClearWindow(this.display, client);
 
             this.MouseMovement.MotionStartX = ev.x_root;
             this.MouseMovement.MotionStartY = ev.y_root;
-            //Xlib.XClearWindow(this.display, title);
-
         }
 
         void OnMapNotify(X11.XMapEvent ev)
@@ -444,6 +463,8 @@ namespace SimpleWM
             Xlib.XSetWindowBackground(this.display, title, GetPixelByName("slate grey") );
             Xlib.XSetWindowBorder(this.display, title, GetPixelByName("light slate grey"));
             Xlib.XClearWindow(this.display, title);
+            UpdateWindowTitle(title);
+
             SetFocusTrap(WindowIndexByFrame[ev.window].child);
         }
 
@@ -454,7 +475,9 @@ namespace SimpleWM
             Xlib.XSetWindowBorder(this.display, frame, GetPixelByName("dark goldenrod"));
             Xlib.XSetWindowBackground(this.display, title, GetPixelByName("yellow"));
             Xlib.XSetWindowBorder(this.display, title, GetPixelByName("gold"));
-            Xlib.XClearWindow(this.display, title);
+            Xlib.XClearWindow(this.display, title); // Force colour update
+
+            UpdateWindowTitle(title); //Redraw the title, purged by clearing.
         }
 
         void OnDestroyNotify(X11.XDestroyWindowEvent ev)
@@ -477,26 +500,17 @@ namespace SimpleWM
             IntPtr ev = Marshal.AllocHGlobal( 24* sizeof(long) );
 
             Window ReturnedParent = 0, ReturnedRoot = 0;
-            //Window[] ChildWindows = new Window[0];
-            IntPtr ChildWindows = IntPtr.Zero;
-            uint nChildren = 0;
+            
 
             Xlib.XGrabServer(this.display); // Lock the server during initialization
             var r = Xlib.XQueryTree(this.display, this.root, ref ReturnedRoot, ref ReturnedParent,
-                ref ChildWindows, ref nChildren);
-            var ChildWinList = new Window[nChildren];
+                out var ChildWindows);
 
-            for (int i = 0; i < nChildren; i++)
+            Console.WriteLine($"Reparenting and framing pre-existing child windows: {ChildWindows.Count}");
+            for (var i = 0; i < ChildWindows.Count; i++)
             {
-                var ptr = new IntPtr(ChildWindows.ToInt64() + i * sizeof(Window));
-                ChildWinList[i] = (Window)Marshal.ReadInt64(ptr);
-            }
-
-            Console.WriteLine($"Pre-existing child windows: {nChildren}");
-            for (var i = 0; i <nChildren; i++)
-            {
-                Console.WriteLine($"Framing child {i}, {ChildWinList[i]}");
-                AddFrame(ChildWinList[i]);
+                Console.WriteLine($"Framing child {i}, {ChildWindows[i]}");
+                AddFrame(ChildWindows[i]);
             }
             Xlib.XUngrabServer(this.display); // Release the lock on the server.
 
@@ -555,7 +569,11 @@ namespace SimpleWM
                         OnFocusInEvent(focus_in_event);
                         break;
                     case (int)Event.ConfigureNotify:
-                        break; 
+                        break;
+                    case (int)Event.Expose:
+                        var expose_event = Marshal.PtrToStructure<X11.XExposeEvent>(ev);
+                        UpdateWindowTitle(expose_event.window);
+                        break;
                     default:
                         Console.WriteLine($"Event type: { Enum.GetName(typeof(Event), xevent.type)}");
                         break;
