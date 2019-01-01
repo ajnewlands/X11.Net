@@ -157,7 +157,7 @@ namespace X11
 
 
         [DllImport("libX11.so.6")]
-        public static extern int XSelectInput(IntPtr display, Window window, EventMask event_mask);
+        public static extern Status XSelectInput(IntPtr display, Window window, EventMask event_mask);
 
         [DllImport("libX11.so.6")]
         private static extern int XQueryTree(IntPtr display, Window window, ref Window WinRootReturn,
@@ -248,6 +248,10 @@ namespace X11
         public static extern Status XFetchName(IntPtr display, Window window, ref String name_return);
 
         [DllImport("libX11.so.6")]
-        public static extern Status XDrawString(IntPtr display, Window drawable, IntPtr gc, int x, int y, byte[] str, int length);
+        public static extern Status XStoreName(IntPtr display, Window window, string window_name);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XDrawString(IntPtr display, Window drawable, IntPtr gc, int x, int y, string str, int length);
     }
+
 }

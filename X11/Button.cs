@@ -9,6 +9,15 @@ namespace X11
         None=0,
     }
 
+    public enum KeyCode: byte
+    {
+    }
+
+    public enum KeySym : long
+    {
+        XK_r = 0x0072,
+    }
+
     public enum Button : uint
     {
         LEFT = 1,
@@ -74,6 +83,35 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern Status XGrabButton(IntPtr display, Button button, KeyButtonMask modifiers, Window grab_window,
         bool owner_events, EventMask event_mask, GrabMode pointer_mode, GrabMode keyboard_mode, Window confine_to, FontCursor cursor);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XGrabPointer(IntPtr display, Window grab_window, bool owner_events, EventMask event_mask, 
+            GrabMode pointer_mode, GrabMode keyboard_mode, Window confine_to, Cursor cursor, ulong time);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XUngrabPointer(IntPtr display, ulong time);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XGrabKey(IntPtr display, KeyCode keycode, KeyButtonMask modifiers, Window grab_window, 
+            bool owner_events, GrabMode pointer_mode, GrabMode keyboard_mode);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XUngrabKey(IntPtr display, KeyCode keycode, KeyButtonMask modifiers, Window grab_window);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XChangeActivePointerGrab(IntPtr display, EventMask event_mask, Cursor cursor, ulong time);
+
+        [DllImport("libX11.so.6")]
+        public static extern KeySym XStringToKeysym(string str);
+
+        [DllImport("libX11.so.6")]
+        public static extern string XKeysymToString(KeySym keysym);
+
+        [DllImport("libX11.so.6")]
+        public static extern KeySym XKeycodeToKeysym(IntPtr display, KeyCode keycode, int index);
+
+        [DllImport("libX11.so.6")]
+        public static extern KeyCode XKeysymToKeycode(IntPtr display, KeySym keysym);
 
         /// <summary>
         ///  The XUngrabButton function releases the passive button/key combination on the specified window if it was
