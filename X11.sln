@@ -5,10 +5,6 @@ VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "X11", "X11\X11.csproj", "{6650780D-C3AE-4FA1-9DFD-803566242111}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "screenshot", "screenshot\screenshot.csproj", "{322A7BDD-E552-4A6C-AAB3-E51EB7565E6A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCV", "OpenCV\OpenCV.csproj", "{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -19,14 +15,6 @@ Global
 		{6650780D-C3AE-4FA1-9DFD-803566242111}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6650780D-C3AE-4FA1-9DFD-803566242111}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6650780D-C3AE-4FA1-9DFD-803566242111}.Release|Any CPU.Build.0 = Release|Any CPU
-		{322A7BDD-E552-4A6C-AAB3-E51EB7565E6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{322A7BDD-E552-4A6C-AAB3-E51EB7565E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{322A7BDD-E552-4A6C-AAB3-E51EB7565E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{322A7BDD-E552-4A6C-AAB3-E51EB7565E6A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
