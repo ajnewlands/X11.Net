@@ -3,13 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X11", "X11\X11.csproj", "{6650780D-C3AE-4FA1-9DFD-803566242111}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "X11", "X11\X11.csproj", "{6650780D-C3AE-4FA1-9DFD-803566242111}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "screenshot", "screenshot\screenshot.csproj", "{322A7BDD-E552-4A6C-AAB3-E51EB7565E6A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "screenshot", "screenshot\screenshot.csproj", "{322A7BDD-E552-4A6C-AAB3-E51EB7565E6A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCV", "OpenCV\OpenCV.csproj", "{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWM", "SimpleWM\SimpleWM.csproj", "{2F862535-8F1F-42BD-B921-164AF6727485}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCV", "OpenCV\OpenCV.csproj", "{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,10 +27,6 @@ Global
 		{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CF9AF95-FADB-4B83-9E8B-32D56410E4FB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2F862535-8F1F-42BD-B921-164AF6727485}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2F862535-8F1F-42BD-B921-164AF6727485}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2F862535-8F1F-42BD-B921-164AF6727485}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2F862535-8F1F-42BD-B921-164AF6727485}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

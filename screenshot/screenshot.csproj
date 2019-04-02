@@ -16,7 +16,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\OpenCV\OpenCV.csproj" />
     <ProjectReference Include="..\X11\X11.csproj" />
   </ItemGroup>
 
