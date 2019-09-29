@@ -22,6 +22,17 @@ namespace X11
         PreferBlanking = 1,
         DefaultBlanking = 2,
     }
+    
+    [StructLayout(LayoutKind.Sequential)]
+    public struct XScreenSaverInfo
+    {
+        public Window window;
+        public int state;
+        public int kind;
+        public ulong til_or_since;
+        public ulong idle;
+        public ulong eventMask;
+    }
 
     public partial class Xlib
     {
@@ -41,5 +52,8 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern Status XGetScreenSaver(IntPtr display, ref int timeout_return, ref int interval_return, 
             ref ScreenSaverBlanking prefer_blanking_return, ref ScreenSaverExposures allow_exposures_return);
+
+        [DllImport("libXss.so.1")]
+        public static extern Status XScreenSaverQueryInfo(IntPtr display, Window drawable, ref XScreenSaverInfo saver_info);
     }
 }
