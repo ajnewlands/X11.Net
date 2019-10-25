@@ -354,6 +354,8 @@ namespace X11
         [DllImport("libX11.so.6")]
         public static extern IntPtr XDisplayName(string display);
 
+        [DllImport("libX11.so.6")]
+        public static extern int XChangeProperty(IntPtr display, Window window, Atom property, Atom type, int format, int mode, IntPtr data, int nelements);
 
     }
 }

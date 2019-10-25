@@ -133,4 +133,11 @@ namespace X11
          X_GetModifierMapping          = 119,
          X_NoOperation                 = 127,
     }
+
+    public enum PropertyMode : int
+    {
+        Replace = 0,
+        Prepend = 1,
+        Append = 2
+    }
 }
