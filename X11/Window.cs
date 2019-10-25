@@ -252,6 +252,12 @@ namespace X11
 
         [DllImport("libX11.so.6")]
         public static extern Status XDrawString(IntPtr display, Window drawable, IntPtr gc, int x, int y, string str, int length);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XSetSelectionOwner(IntPtr display, Atom atom, Window window, long time);
+
+        [DllImport("libX11.so.6")]
+        public static extern Status XGetSelectionOwner(IntPtr display, Atom atom, Window window, long time);
     }
 
 }
