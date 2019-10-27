@@ -258,6 +258,14 @@ namespace X11
 
         [DllImport("libX11.so.6")]
         public static extern Status XGetSelectionOwner(IntPtr display, Atom atom, Window window, long time);
+
+        [DllImport("libX11.so.6")]
+        public static extern bool XQueryPointer(IntPtr display, Window window, ref Window window_return, ref Window child_return,
+            ref int root_x, ref int root_y, ref int win_x, ref int win_y, ref uint mask);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XGetGeometry(IntPtr display, Window drawable, ref Window root,
+            ref int x, ref int y, ref uint width, ref uint height, ref uint border, ref uint depth);
     }
 
 }
