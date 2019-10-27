@@ -14,7 +14,8 @@
     <RepositoryUrl>https://github.com/ajnewlands/X11.Net</RepositoryUrl>
     <PackageTags>X11 Xlib "X Windows"</PackageTags>
     <PackageLicenseUrl>https://github.com/ajnewlands/X11.Net/blob/master/X11/License.txt</PackageLicenseUrl>
-    <Version>1.0.3</Version>
+    <Version>1.0.6</Version>
+    <AssemblyVersion>1.0.6.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
