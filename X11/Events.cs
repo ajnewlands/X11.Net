@@ -761,5 +761,11 @@ namespace X11
 
         [DllImport("libX11.so.6")]
         public static extern Status XSendEvent(IntPtr display, Window window, bool propagate, long event_mask, IntPtr event_send);
+
+        [DllImport("libX11.so.6")]
+        public static extern X11.Atom XInternAtom(IntPtr display, string name, bool only_if_exists);
+
+        [DllImport("libX11.so.6")]
+        public static extern String XGetAtomName(IntPtr display, X11.Atom atom);
     }
 }

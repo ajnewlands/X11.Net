@@ -15,6 +15,7 @@ namespace X11
 
     public enum KeySym : long
     {
+        NoSymbol = 0,
         XK_r = 0x0072,
     }
 
@@ -126,6 +127,15 @@ namespace X11
         /// <returns></returns>
         [DllImport("libX11.so.6")]
         public static extern Status XUngrabButton(IntPtr display, Button button, KeyButtonMask modifiers, Window grab_window);
+
+        [DllImport("libX11.so.6")]
+        public static extern IntPtr XGetKeyboardMapping(IntPtr display, X11.KeyCode keyCode, int keycode_count, IntPtr keysyms_per_keycode_return);
+
+        [DllImport("libX11.so.6")]
+        public static extern int XChangeKeyboardMapping(IntPtr display, X11.KeyCode keyCode, int keysyms_per_keycode, IntPtr keysys, int num_codes);
+
+        [DllImport("libX11.so.6")]
+        public static extern void XDisplayKeycodes(IntPtr display, IntPtr min, IntPtr max);
     }
 
 

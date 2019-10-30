@@ -140,4 +140,10 @@ namespace X11
         Prepend = 1,
         Append = 2
     }
+
+    public partial class Xlib
+    {
+        [DllImport("libX11.so.6")]
+        public static extern void XFree(IntPtr data);
+    }
 }
