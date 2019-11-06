@@ -7,6 +7,8 @@ namespace X11
 {
     public partial class xcb
     {
+        public enum Window : UInt32 { }
+
         /// <summary>
         /// Establish an XCB connection to X11
         /// </summary>
@@ -16,14 +18,8 @@ namespace X11
         [DllImport("libxcb.so")]
         public static extern IntPtr xcb_connect(string DisplayName, IntPtr ScreenNumber);
 
-        /// <summary>
-        /// Establish an XCB connection to X11
-        /// </summary>
-        /// <param name="DisplayName">Name of the display to connect to. If NULL, connect to the default display</param>
-        /// <param name="ScreenNumber">Pointer to the screen number to connect to. Defaults to zero where this is NULL</param>
-        /// <returns>A pointer to the connection object. Always returns non-null; check the result with xcb_connection_has_error()</returns>
         [DllImport("libxcb.so")]
-        public static extern IntPtr xcb_connect(IntPtr DisplayName, IntPtr ScreenNumber);
+        public static extern void xcb_disconnect(IntPtr Connection);
 
         /// <summary>
         /// Return codes for xcb_connection_has_error()
@@ -46,5 +42,25 @@ namespace X11
         /// <returns>0 on success, >0 on failure.</returns>
         [DllImport("libxcb.so")]
         public static extern XCBConnectionError xcb_connection_has_error(IntPtr Connection);
+
+        [DllImport("libxcb.so")]
+        public static extern IntPtr xcb_get_setup(IntPtr Connection);
+
+        [DllImport("libxcb.so")]
+        public static extern xcb_screen_iterator_t xcb_setup_roots_iterator(IntPtr Setup);
+
+        /// <summary>
+        /// Block until the next event is received (or the connection to X11 is lost)
+        /// </summary>
+        /// <param name="Connection">A pointer to an opaque connection structure</param>
+        /// <returns>The next event received (or null on disconnection)</returns>
+        [DllImport("libxcb.so")]
+        private static extern IntPtr xcb_wait_for_event(IntPtr Connection);
+        public static generic_event? wait_for_event(IntPtr Connection)
+        {
+            var e = xcb_wait_for_event(Connection);
+            return (e == IntPtr.Zero) ? new generic_event?() : Marshal.PtrToStructure<generic_event>(e);
+        }
+
     }
 }
