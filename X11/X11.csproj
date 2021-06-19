@@ -5,7 +5,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Andrew Newlands</Authors>
     <Product />
@@ -14,8 +14,8 @@
     <RepositoryUrl>https://github.com/ajnewlands/X11.Net</RepositoryUrl>
     <PackageTags>X11 Xlib "X Windows"</PackageTags>
     <PackageLicenseUrl>https://github.com/ajnewlands/X11.Net/blob/master/X11/License.txt</PackageLicenseUrl>
-    <Version>1.0.6</Version>
-    <AssemblyVersion>1.0.6.0</AssemblyVersion>
+    <Version>1.0.7</Version>
+    <AssemblyVersion>1.0.7.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

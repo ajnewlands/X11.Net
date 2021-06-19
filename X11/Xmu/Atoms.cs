@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace X11
 {
@@ -12,6 +10,5 @@ namespace X11
 
         [DllImport("libXmu.so.6")]
         public static extern IntPtr XmuMakeAtom(String name);
-
     }
 }
